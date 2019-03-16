@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace MSTeams-Karma
+namespace MSTeams.Karma
 {
     internal class KarmaScore
     {
@@ -15,7 +15,7 @@ namespace MSTeams-Karma
     {
         // To test the Regex: https://regexr.com/4aa2a
         private const string KarmaRegex = @"((?:[^-+\s]+?)|(?:\""[^-+]+?\"")|(?:<at>[^-+]+?<\/at>))[ ]*([-]{2,}|[+]{2,})(?:\s|$)";
-        private const string KarmaFilePath = @"C:\Projects\Personal\MSTeams-Karma\MSTeams-Karma\karma.txt";
+        private const string KarmaFilePath = @"C:\Projects\Personal\MSTeams.Karma\MSTeams.Karma\karma.txt";
         private const string ReplyMessageIncreasedFormat = "{0}'s karma has increased to {1}";
         private const string ReplyMessageDecreasedFormat = "{0}'s karma has decreased to {1}";
 

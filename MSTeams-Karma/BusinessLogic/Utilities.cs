@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Bot.Connector;
 
-namespace MSTeams-Karma
+namespace MSTeams.Karma
 {
     public class Utilities
     {

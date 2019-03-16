@@ -8,7 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http;
 
-namespace MSTeams-Karma.Controllers
+namespace MSTeams.Karma.Controllers
 {
     /// <summary>
     /// Main messaging controller.

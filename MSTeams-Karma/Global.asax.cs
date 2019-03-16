@@ -1,4 +1,4 @@
-﻿namespace MSTeams-Karma
+﻿namespace MSTeams.Karma
 {
     using System.Configuration;
     using System.Web.Http;
