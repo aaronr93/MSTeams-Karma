@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using NLog;
 
 namespace MSTeams.Karma
 {
@@ -13,9 +14,11 @@ namespace MSTeams.Karma
 
     public static class KarmaLogic
     {
+        private static ILogger Logger => LogManager.GetLogger("karma");
+
         // To test the Regex: https://regexr.com/4aa2a
         private const string KarmaRegex = @"((?:[^-+\s]+?)|(?:\""[^-+]+?\"")|(?:<at>[^-+]+?<\/at>))[ ]*([-]{2,}|[+]{2,})(?:\s|$)";
-        private const string KarmaFilePath = @"C:\Projects\Personal\MSTeams.Karma\MSTeams.Karma\karma.txt";
+        private const string KarmaFilePath = @"C:\Projects\Personal\MSTeams-Karma\MSTeams-Karma\karma.txt";
         private const string ReplyMessageIncreasedFormat = "{0}'s karma has increased to {1}";
         private const string ReplyMessageDecreasedFormat = "{0}'s karma has decreased to {1}";
 
@@ -25,10 +28,9 @@ namespace MSTeams.Karma
             {
                 _karma = GetKarmaFromFile();
             }
-            catch
+            catch (Exception ex)
             {
-                throw;
-                // TODO: Logging
+                Logger.Error(ex);
             }
         }
 

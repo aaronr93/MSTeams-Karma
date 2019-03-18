@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http;
+using NLog;
 
 namespace MSTeams.Karma.Controllers
 {
@@ -17,6 +18,8 @@ namespace MSTeams.Karma.Controllers
     [BotAuthentication, TenantFilter]
     public class MessagesController : ApiController
     {
+        private static ILogger Logger => LogManager.GetLogger("karma");
+
         /// <summary>
         /// POST: api/Messages
         /// Receive a message from a user and reply to it
@@ -58,6 +61,8 @@ namespace MSTeams.Karma.Controllers
             // Send the response
             var connectorClient = new ConnectorClient(new Uri(activity.ServiceUrl));
             await connectorClient.Conversations.ReplyToActivityAsync(reply, cancellationToken);
+
+            Logger.Info($"<message>{activity.Text}</message><reply>{reply.Text}</reply>");
 
             return Request.CreateResponse(HttpStatusCode.OK);
         }
