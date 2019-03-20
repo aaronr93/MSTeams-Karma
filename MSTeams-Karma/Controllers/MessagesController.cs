@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http;
+using MSTeams.Karma.Util;
 using NLog;
 
 namespace MSTeams.Karma.Controllers
@@ -15,7 +16,8 @@ namespace MSTeams.Karma.Controllers
     /// Main messaging controller.
     /// </summary>
     /// <seealso cref="ApiController" />
-    [BotAuthentication, TenantFilter]
+    [BotAuthentication(CredentialProviderType = typeof(CustomCredsProvider))]
+    [TenantFilter]
     public class MessagesController : ApiController
     {
         private static ILogger Logger => LogManager.GetLogger("karma");
