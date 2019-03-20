@@ -10,17 +10,14 @@ namespace MSTeams.Karma.Util
     {
         private static string KeyVaultBaseUri => WebConfigurationManager.AppSettings["AzureKeyVaultBaseUri"];
 
-        public static async Task<string> GetSecret(string key)
+        public static string GetSecret(string key)
         {
             AzureServiceTokenProvider azureServiceTokenProvider = new AzureServiceTokenProvider();
 
             var keyVaultClient = new KeyVaultClient(
                     new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
 
-            var secret = await keyVaultClient.GetSecretAsync($"{KeyVaultBaseUri}/secrets/{key}")
-                .ConfigureAwait(false);
-
-            return secret.Value;
+            return keyVaultClient.GetSecretAsync($"{KeyVaultBaseUri}/secrets/{key}").Result.Value;
         }
 
     }

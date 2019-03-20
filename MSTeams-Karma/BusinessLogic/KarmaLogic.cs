@@ -3,15 +3,12 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using MSTeams.Karma.Models;
 using NLog;
 
 namespace MSTeams.Karma
 {
-    internal class KarmaScore
-    {
-        public int Value { get; set; }
-    }
-
     public static class KarmaLogic
     {
         private static ILogger Logger => LogManager.GetLogger("karma");
@@ -26,7 +23,9 @@ namespace MSTeams.Karma
         {
             try
             {
-                _karma = GetKarmaFromFile();
+                var task = GetKarmaFromCosmos();
+                task.Wait();
+                _karma = task.Result;
             }
             catch (Exception ex)
             {
@@ -34,7 +33,7 @@ namespace MSTeams.Karma
             }
         }
 
-        private static volatile ConcurrentDictionary<string, KarmaScore> _karma;
+        private static volatile ConcurrentDictionary<string, KarmaModel> _karma;
 
         private static readonly List<string> KarmaBlacklist = new List<string>
         {
@@ -86,22 +85,22 @@ namespace MSTeams.Karma
                 replyMessage += "Buzzkill Mode™ has enforced a maximum change of 5 points ... ";
             }
 
-            var karmaItem = _karma.GetOrAdd(entity, _ => new KarmaScore());
+            var karmaItem = _karma.GetOrAdd(entity, _ => new KarmaModel());
             lock (karmaItem)
             {
                 if (delta.Contains("+"))
                 {
-                    karmaItem.Value += deltaLength;
-                    replyMessage += string.Format(ReplyMessageIncreasedFormat, rawEntity, karmaItem.Value);
+                    karmaItem.Score += deltaLength;
+                    replyMessage += string.Format(ReplyMessageIncreasedFormat, rawEntity, karmaItem.Score);
                 }
                 else if (delta.Contains("-"))
                 {
-                    karmaItem.Value -= deltaLength;
-                    replyMessage += string.Format(ReplyMessageDecreasedFormat, rawEntity, karmaItem.Value);
+                    karmaItem.Score -= deltaLength;
+                    replyMessage += string.Format(ReplyMessageDecreasedFormat, rawEntity, karmaItem.Score);
                 }
             }
 
-            WriteKarmaToFile(_karma);
+            WriteKarmaToCosmos(_karma);
 
             return replyMessage;
         }
@@ -118,35 +117,26 @@ namespace MSTeams.Karma
             return karmaMatch;
         }
 
-        private static ConcurrentDictionary<string, KarmaScore> GetKarmaFromFile()
+        private static async Task<ConcurrentDictionary<string, KarmaModel>> GetKarmaFromCosmos()
         {
-            var contents = System.IO.File.ReadAllLines(KarmaFilePath).ToList();
-            var karma = new ConcurrentDictionary<string, KarmaScore>();
+            var contents = await DocumentDBRepository<Models.KarmaModel>.GetItemsAsync(x => !string.IsNullOrEmpty(x.Entity) && x.Score.HasValue);
+            var karmaStore = contents.ToList();
+            var karma = new ConcurrentDictionary<string, KarmaModel>();
 
-            var dict = contents
-                .Select(l => l.Split('='))
-                .Where(a => a.Length == 2)
-                .ToDictionary(
-                    a => a[0],
-                    a => int.Parse(a[1]));
-
-            foreach (var item in dict)
+            foreach (var item in karmaStore)
             {
-                karma.TryAdd(item.Key, new KarmaScore { Value = item.Value });
+                karma.TryAdd(item.Entity, new KarmaModel { Score = item.Score.Value });
             }
 
             return karma;
         }
-
-        // TODO: Should I add locking to this?
-        private static void WriteKarmaToFile(ConcurrentDictionary<string, KarmaScore> karma)
+        
+        private static async Task WriteKarmaToCosmos(ConcurrentDictionary<string, KarmaModel> karma)
         {
-            var fileContents = string.Join(Environment.NewLine,
-                karma
-                    .Select(a => $"{a.Key}={a.Value.Value}")
-                    .ToList());
-
-            System.IO.File.WriteAllText(KarmaFilePath, fileContents);
+            foreach (var item in karma)
+            {
+                await DocumentDBRepository<Models.KarmaModel>.UpdateItemAsync(item.Key, item.Value);
+            }
         }
     }
 }
