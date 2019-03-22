@@ -263,12 +263,12 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <Content Include="Manifest\manifest.json" />
     <Content Include="NLog.config">
       <SubType>Designer</SubType>
     </Content>
     <None Include="packages.config" />
     <None Include="Properties\PublishProfiles\arosenberger-MSTeams-Karma - Web Deploy.pubxml" />
+    <None Include="Properties\PublishProfiles\arosenberger-MSTeams-Karma - Web Deploy1.pubxml" />
     <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
   </ItemGroup>
   <ItemGroup>
