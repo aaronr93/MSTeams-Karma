@@ -72,7 +72,7 @@ namespace MSTeams.Karma
 
         public static void Initialize()
         {
-            var authKey = KeyVaultHelper.GetSecret("AzureCosmosPrimaryAuthKey");
+            var authKey = KeyVaultHelper.GetSecret("AzureCosmosPrimaryAuthKey/a2fc5601300b4ff597b108d70036fdb5");
             client = new DocumentClient(new Uri(ConfigurationManager.AppSettings["endpoint"]), authKey);
             CreateDatabaseIfNotExistsAsync().Wait();
             CreateCollectionIfNotExistsAsync().Wait();

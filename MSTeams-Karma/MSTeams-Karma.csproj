@@ -249,7 +249,6 @@
     <Compile Include="Util\KeyVaultHelper.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="karma.txt" />
     <Content Include="Manifest\bot_blue.png" />
     <Content Include="Global.asax" />
     <Content Include="Web.config">
