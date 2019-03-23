@@ -53,14 +53,15 @@ namespace MSTeams.Karma.Controllers
             //}
 
             // Process the alleged Karma instruction and add the response message
-            var replyMessage = KarmaLogic.GetReplyMessageForKarma(activity.Text);
+            var replyMessage = await KarmaLogic.GetReplyMessageForKarma(activity.Text);
             if (string.IsNullOrEmpty(replyMessage))
             {
                 return Request.CreateResponse(HttpStatusCode.OK);
             }
             reply.Text += replyMessage;
 
-            // Send the response
+            // Send the response. We need a new ConnectorClient each time so that this action is thread-safe.
+            // For example, multiple teams may call the bot simultaneously; it should respond to the right conversation.
             var connectorClient = new ConnectorClient(new Uri(activity.ServiceUrl));
             await connectorClient.Conversations.ReplyToActivityAsync(reply, cancellationToken);
 

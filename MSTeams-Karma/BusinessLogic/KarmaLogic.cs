@@ -52,7 +52,7 @@ namespace MSTeams.Karma
             return rawEntity == mentionedUserText;
         }
 
-        public static string GetReplyMessageForKarma(string originalMessage)
+        public static async Task<string> GetReplyMessageForKarma(string originalMessage)
         {
             var karmaMatch = GetKarmaRegexMatch(originalMessage);
             if (karmaMatch == null)
@@ -100,7 +100,7 @@ namespace MSTeams.Karma
                 }
             }
 
-            WriteKarmaToCosmos(_karma);
+            await WriteKarmaToCosmos(_karma);
 
             return replyMessage;
         }

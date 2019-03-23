@@ -74,9 +74,14 @@ namespace MSTeams.Karma
 
         public static void Initialize()
         {
-            client = new DocumentClient(new Uri(Endpoint), AuthKey);
+            client = GetDocumentClient(Endpoint, AuthKey);
             CreateDatabaseIfNotExistsAsync().Wait();
             CreateCollectionIfNotExistsAsync().Wait();
+        }
+
+        public static DocumentClient GetDocumentClient(string endpoint, string authKey)
+        {
+            return new DocumentClient(new Uri(endpoint), authKey);
         }
 
         private static async Task CreateDatabaseIfNotExistsAsync()
