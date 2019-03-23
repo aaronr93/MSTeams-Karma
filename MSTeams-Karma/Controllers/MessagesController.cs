@@ -88,7 +88,8 @@ namespace MSTeams.Karma.Controllers
             //}
 
             // Process the alleged Karma instruction and add the response message
-            var replyMessage = await KarmaLogic.GetReplyMessageForKarma(activity.Text);
+            var karmaLogic = new KarmaLogic();
+            var replyMessage = await karmaLogic.GetReplyMessageForKarma(activity.Text);
             if (string.IsNullOrEmpty(replyMessage))
             {
                 return Request.CreateResponse(HttpStatusCode.OK);
