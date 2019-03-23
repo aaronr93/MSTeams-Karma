@@ -259,7 +259,6 @@
     <Compile Include="BusinessLogic\Utilities.cs" />
     <Compile Include="Util\DocumentDBRepository.cs" />
     <Compile Include="Models\KarmaModel.cs" />
-    <Compile Include="Util\CustomCredsProvider.cs" />
     <Compile Include="Controllers\MessagesController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
