@@ -14,14 +14,14 @@ namespace MSTeams_Karma.Tests
         private static readonly string AuthKey = ConfigurationManager.AppSettings["AzureCosmosPrimaryAuthKey"];
         private static readonly string Endpoint = ConfigurationManager.AppSettings["AzureCosmosEndpoint"];
 
-        [Fact]
+        [Fact(Skip = "This is an integration test. Run locally to test.")]
         public void TestGetDocumentClient()
         {
             DocumentClient client = DocumentDBRepository<KarmaModel>.GetDocumentClient(Endpoint, AuthKey);
             client.ServiceEndpoint.Should().NotBeNull().And.Should().NotBe(string.Empty);
         }
 
-        [Fact]
+        [Fact(Skip = "This is an integration test. Run locally to test.")]
         public async Task TestDocumentClientWorks()
         {
             DocumentClient client = DocumentDBRepository<KarmaModel>.GetDocumentClient(Endpoint, AuthKey);
