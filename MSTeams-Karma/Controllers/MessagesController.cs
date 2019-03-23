@@ -19,8 +19,8 @@ namespace MSTeams.Karma.Controllers
     /// Main messaging controller.
     /// </summary>
     /// <seealso cref="ApiController" />
-    [BotAuthentication(CredentialProviderType = typeof(CustomCredsProvider))]
-    [TenantFilter]
+    //[BotAuthentication(CredentialProviderType = typeof(CustomCredsProvider))]
+    //[TenantFilter]
     public class MessagesController : ApiController
     {
         private static readonly string AuthKey = ConfigurationManager.AppSettings["AzureCosmosPrimaryAuthKey"];
