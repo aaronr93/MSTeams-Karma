@@ -1,5 +1,6 @@
 ﻿using Microsoft.Bot.Connector;
 using MSTeams.Karma.Util;
+using System.Configuration;
 
 namespace MSTeams.Karma.Util
 {
@@ -7,8 +8,8 @@ namespace MSTeams.Karma.Util
     {
         public CustomCredsProvider()
         {
-            base.AppId = KeyVaultHelper.GetSecret("MicrosoftAppId");
-            base.Password = KeyVaultHelper.GetSecret("MicrosoftAppPassword");
+            base.AppId = ConfigurationManager.AppSettings["MicrosoftAppId"];
+            base.Password = ConfigurationManager.AppSettings["MicrosoftAppPassword"];
         }
     }
 }
