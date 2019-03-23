@@ -20,7 +20,7 @@ namespace MSTeams.Karma.Controllers
     [TenantFilter]
     public class MessagesController : ApiController
     {
-        private static ILogger Logger => LogManager.GetLogger("karma");
+        private static ILogger Logger => LogManager.GetCurrentClassLogger();
 
         /// <summary>
         /// POST: api/Messages

@@ -11,7 +11,7 @@ namespace MSTeams.Karma
 {
     public static class KarmaLogic
     {
-        private static ILogger Logger => LogManager.GetLogger("karma");
+        private static ILogger Logger => LogManager.GetCurrentClassLogger();
 
         // To test the Regex: https://regexr.com/4aa2a
         private const string KarmaRegex = @"((?:[^-+\s]+?)|(?:\""[^-+]+?\"")|(?:<at>[^-+]+?<\/at>))[ ]*([-]{2,}|[+]{2,})(?:\s|$)";
