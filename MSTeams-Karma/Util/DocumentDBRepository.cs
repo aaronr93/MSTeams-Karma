@@ -1,6 +1,4 @@
-﻿using MSTeams.Karma.Util;
-
-namespace MSTeams.Karma
+﻿namespace MSTeams.Karma
 {
     using System;
     using System.Collections.Generic;

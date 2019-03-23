@@ -7,7 +7,6 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http;
-using MSTeams.Karma.Util;
 using NLog;
 using System.Configuration;
 using Microsoft.Azure.Documents.Client;
@@ -19,8 +18,8 @@ namespace MSTeams.Karma.Controllers
     /// Main messaging controller.
     /// </summary>
     /// <seealso cref="ApiController" />
-    //[BotAuthentication(CredentialProviderType = typeof(CustomCredsProvider))]
-    //[TenantFilter]
+    [BotAuthentication(MicrosoftAppIdSettingName = "MicrosoftAppId", MicrosoftAppPasswordSettingName = "MicrosoftAppPassword")]
+    [TenantFilter]
     public class MessagesController : ApiController
     {
         private static readonly string AuthKey = ConfigurationManager.AppSettings["AzureCosmosPrimaryAuthKey"];
