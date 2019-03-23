@@ -16,6 +16,8 @@ namespace MSTeams.Karma
     {
         private static readonly string DatabaseId = ConfigurationManager.AppSettings["database"];
         private static readonly string CollectionId = ConfigurationManager.AppSettings["collection"];
+        private static readonly string AuthKey = ConfigurationManager.AppSettings["AzureCosmosPrimaryAuthKey"];
+        private static readonly string Endpoint = ConfigurationManager.AppSettings["AzureCosmosEndpoint"];
         private static DocumentClient client;
 
         public static async Task<T> GetItemAsync(string id)
@@ -72,8 +74,7 @@ namespace MSTeams.Karma
 
         public static void Initialize()
         {
-            var authKey = KeyVaultHelper.GetSecret("AzureCosmosPrimaryAuthKey");
-            client = new DocumentClient(new Uri(ConfigurationManager.AppSettings["AzureCosmosEndpoint"]), authKey);
+            client = new DocumentClient(new Uri(Endpoint), AuthKey);
             CreateDatabaseIfNotExistsAsync().Wait();
             CreateCollectionIfNotExistsAsync().Wait();
         }
