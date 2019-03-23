@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using MSTeams.Karma.Util;
 using NLog;
+using System.Configuration;
+using Microsoft.Azure.Documents.Client;
+using MSTeams.Karma.Models;
 
 namespace MSTeams.Karma.Controllers
 {
@@ -20,7 +23,39 @@ namespace MSTeams.Karma.Controllers
     [TenantFilter]
     public class MessagesController : ApiController
     {
+        private static readonly string AuthKey = ConfigurationManager.AppSettings["AzureCosmosPrimaryAuthKey"];
+        private static readonly string Endpoint = ConfigurationManager.AppSettings["AzureCosmosEndpoint"];
         private static ILogger Logger => LogManager.GetCurrentClassLogger();
+        
+        [HttpGet]
+        [Route("healthcheck")]
+        public async Task<string> HealthCheck()
+        {
+            DocumentClient client = DocumentDBRepository<KarmaModel>.GetDocumentClient(Endpoint, AuthKey);
+            string responseMessage;
+
+            try
+            {
+                await client.OpenAsync();
+                responseMessage = "Successfully opened database.";
+            }
+            catch (Exception)
+            {
+                responseMessage = "Unable to open database.";
+            }
+            finally
+            {
+                client.Dispose();
+            }
+
+            return responseMessage;
+        }
+
+        [HttpGet]
+        public string Get()
+        {
+            return "GET not supported. Try /healthcheck or /post, the latter within MS Teams.";
+        }
 
         /// <summary>
         /// POST: api/Messages
