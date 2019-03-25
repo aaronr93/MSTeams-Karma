@@ -256,7 +256,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
-    <Compile Include="BusinessLogic\Utilities.cs" />
     <Compile Include="Util\DocumentDBRepository.cs" />
     <Compile Include="Models\KarmaModel.cs" />
     <Compile Include="Controllers\MessagesController.cs" />
@@ -298,9 +297,6 @@
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Properties\PublishProfiles\arosenberger-MSTeams-Karma - Web Deploy.pubxml" />
-    <None Include="Properties\PublishProfiles\arosenberger-MSTeams-Karma - Web Deploy1.pubxml" />
-    <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Strings.resx">
