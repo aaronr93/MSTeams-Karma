@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Configuration;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -14,6 +15,7 @@ using Microsoft.Azure.Documents.Client;
 using MSTeams.Karma.BusinessLogic;
 using MSTeams.Karma.Models;
 using MSTeams.Karma.Properties;
+using Activity = Microsoft.Bot.Connector.Activity;
 
 namespace MSTeams.Karma.Controllers
 {
@@ -25,7 +27,6 @@ namespace MSTeams.Karma.Controllers
             _karmaLogic = new KarmaLogic();
         }
 
-        private static ILogger Logger => LogManager.GetCurrentClassLogger();
         private readonly KarmaLogic _karmaLogic;
         
         [HttpGet]
@@ -94,7 +95,7 @@ namespace MSTeams.Karma.Controllers
                     await connectorClient.Conversations.ReplyToActivityAsync(reply, cancellationToken);
                 }
 
-                Logger.Info($"<message>{activity.Text}</message><reply>{reply.Text}</reply>");
+                Trace.TraceInformation($"<message>{activity.Text}</message><reply>{reply.Text}</reply>");
             }
 
             // Add things you *can* do in personal chat (like leaderboard checking) below.
@@ -168,7 +169,7 @@ namespace MSTeams.Karma.Controllers
                 await connectorClient.Conversations.ReplyToActivityAsync(reply, cancellationToken);
             }
 
-            Logger.Info($"<message>{activity.Text}</message><reply>{reply.Text}</reply>");
+            Trace.TraceInformation($"<message>{activity.Text}</message><reply>{reply.Text}</reply>");
 
             return Request.CreateResponse(HttpStatusCode.OK);
         }

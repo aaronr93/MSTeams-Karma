@@ -12,8 +12,6 @@ namespace MSTeams.Karma.BusinessLogic
 {
     public class KarmaLogic
     {
-        private static ILogger Logger => LogManager.GetCurrentClassLogger();
-
         // To test the Regex: https://regexr.com/4aa2a
         private const string KarmaRegex = @"((?:[^-+\s]+?)|(?:\""[^-+]+?\"")|(?:<at>[^-+]+?<\/at>))[ ]*([-]{2,}|[+]{2,})(?:\s|$)";
         private const string ReplyMessageIncreasedFormat = "{0}'s karma has increased to {1}";
