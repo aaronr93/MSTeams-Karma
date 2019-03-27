@@ -153,6 +153,9 @@ namespace MSTeams.Karma.Controllers
             //    }
             //}
 
+            // Strip the mention of this bot
+            Utilities.RemoveBotMentionsFromActivityText(activity);
+
             // Process the alleged Karma instruction and add the response message
             var replyMessage = await _karmaLogic.GetReplyMessageForKarma(activity.Text);
             if (string.IsNullOrEmpty(replyMessage))

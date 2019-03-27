@@ -269,6 +269,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
+    <Compile Include="Util\Utilities.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Manifest\bot_blue.png" />
