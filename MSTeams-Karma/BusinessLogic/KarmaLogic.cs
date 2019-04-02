@@ -5,17 +5,15 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using MSTeams.Karma.Models;
+using MSTeams.Karma.Properties;
 using NLog;
 
-namespace MSTeams.Karma
+namespace MSTeams.Karma.BusinessLogic
 {
     public class KarmaLogic
     {
-        private static ILogger Logger => LogManager.GetCurrentClassLogger();
-
         // To test the Regex: https://regexr.com/4aa2a
         private const string KarmaRegex = @"((?:[^-+\s]+?)|(?:\""[^-+]+?\"")|(?:<at>[^-+]+?<\/at>))[ ]*([-]{2,}|[+]{2,})(?:\s|$)";
-        private const string KarmaFilePath = @"C:\Projects\Personal\MSTeams-Karma\MSTeams-Karma\karma.txt";
         private const string ReplyMessageIncreasedFormat = "{0}'s karma has increased to {1}";
         private const string ReplyMessageDecreasedFormat = "{0}'s karma has decreased to {1}";
 
@@ -32,16 +30,32 @@ namespace MSTeams.Karma
             "msteams"
         };
 
-        public static bool MentionedUserWasGivenKarma(string message, string mentionedUserText)
+        /// <summary>
+        /// Returns an entity that was given karma, if any was given.
+        /// </summary>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        public static string SomeoneWasGivenKarma(string message)
         {
-            var karmaMatch = GetKarmaRegexMatch(message);
-            if (karmaMatch == null)
+            if (string.IsNullOrEmpty(message))
             {
-                return false;
+                return null;
             }
 
-            var rawEntity = karmaMatch.Groups[1].Value;
-            return rawEntity == mentionedUserText;
+            var karmaMatch = GetKarmaRegexMatch(message);
+            if (karmaMatch == null || !karmaMatch.Success)
+            {
+                return null;
+            }
+
+            if (karmaMatch.Groups.Count > 1)
+            {
+                return karmaMatch.Groups[1].Value;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         private static string GetPartitionForKey(string key)
@@ -57,13 +71,13 @@ namespace MSTeams.Karma
         public async Task<string> GetReplyMessageForKarma(string originalMessage)
         {
             var karmaMatch = GetKarmaRegexMatch(originalMessage);
-            if (karmaMatch == null)
+
+            // Entity: the string to which karma is given.
+            var entityForMessaging = SomeoneWasGivenKarma(originalMessage);
+            if (entityForMessaging == null)
             {
                 return null;
             }
-
-            // Entity: the string to which karma is given.
-            var entityForMessaging = karmaMatch.Groups[1].Value;
             var uniqueEntity = Regex.Replace(entityForMessaging, "<.*?>|@|\"", "").ToLower();
             uniqueEntity = Regex.Replace(uniqueEntity, "[\\s]+", "");
 
@@ -99,7 +113,7 @@ namespace MSTeams.Karma
             {
                 // BUZZKILL MODE
                 deltaLength = 5;
-                replyMessage += "Buzzkill Mode™ has enforced a maximum change of 5 points ... ";
+                replyMessage += $"{Strings.BuzzkillMode} {Strings.BuzzkillModeMessage} ... ";
             }
             
             if (delta.Contains("+"))

@@ -9,7 +9,8 @@ namespace MSTeams.Karma
     {
         public static IEnumerable<Mention> GetUserMentions(Activity activity)
         {
-            return activity.GetMentions().ToList()
+            return activity.GetMentions()
+                .ToList()
                 .Where(a => a.Mentioned.Id != activity.Recipient.Id)
                 .ToList();
         }

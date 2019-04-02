@@ -1,5 +1,6 @@
 ﻿using MSTeams.Karma;
 using System;
+using MSTeams.Karma.BusinessLogic;
 using Xunit;
 
 namespace MSTeams_Karma.Tests
@@ -7,33 +8,33 @@ namespace MSTeams_Karma.Tests
     public class KarmaLogicTests
     {
         [Theory]
-        [InlineData("<at>Aaron Rosenberger</at>++", "<at>Aaron Rosenberger</at>", true)]
-        [InlineData("<at>Aaron Rosenberger</at> ++", "<at>Aaron Rosenberger</at>", true)]
-        [InlineData("<at>Aaron Rosenberger</at>++++", "<at>Aaron Rosenberger</at>", true)]
-        [InlineData("<at>Aaron Rosenberger</at> ++++", "<at>Aaron Rosenberger</at>", true)]
-        [InlineData("<at>Aaron Rosenberger</at>+++++++++++++++++", "<at>Aaron Rosenberger</at>", true)]
-        [InlineData("<at>Aaron Rosenberger</at> +++++++++++++++++", "<at>Aaron Rosenberger</at>", true)]
-        [InlineData("<at>Aaron Rosenberger</at>--", "<at>Aaron Rosenberger</at>", true)]
-        [InlineData("<at>Aaron Rosenberger</at> --", "<at>Aaron Rosenberger</at>", true)]
-        [InlineData("<at>Aaron Rosenberger</at>----", "<at>Aaron Rosenberger</at>", true)]
-        [InlineData("<at>Aaron Rosenberger</at> ----", "<at>Aaron Rosenberger</at>", true)]
-        [InlineData("<at>Aaron Rosenberger</at>-----------------", "<at>Aaron Rosenberger</at>", true)]
-        [InlineData("<at>Aaron Rosenberger</at> -----------------", "<at>Aaron Rosenberger</at>", true)]
-        [InlineData("<at>Aaron Rosenberger</at>+-", "<at>Aaron Rosenberger</at>", false)]
-        [InlineData("<at>Aaron Rosenberger</at> +-", "<at>Aaron Rosenberger</at>", false)]
-        [InlineData("<at>Aaron Rosenberger</at>+++-", "<at>Aaron Rosenberger</at>", false)]
-        [InlineData("<at>Aaron Rosenberger</at> +++-", "<at>Aaron Rosenberger</at>", false)]
-        [InlineData("<at>Aaron Rosenberger</at>++++++++++++++++-", "<at>Aaron Rosenberger</at>", false)]
-        [InlineData("<at>Aaron Rosenberger</at> ++++++++++++++++-", "<at>Aaron Rosenberger</at>", false)]
-        [InlineData("<at>Aaron Rosenberger</at>-+", "<at>Aaron Rosenberger</at>", false)]
-        [InlineData("<at>Aaron Rosenberger</at> -+", "<at>Aaron Rosenberger</at>", false)]
-        [InlineData("<at>Aaron Rosenberger</at>---+", "<at>Aaron Rosenberger</at>", false)]
-        [InlineData("<at>Aaron Rosenberger</at> ---+", "<at>Aaron Rosenberger</at>", false)]
-        [InlineData("<at>Aaron Rosenberger</at>----------------+", "<at>Aaron Rosenberger</at>", false)]
-        [InlineData("<at>Aaron Rosenberger</at> ----------------+", "<at>Aaron Rosenberger</at>", false)]
-        public void Test_MentionedUserWasGivenKarma(string message, string mentionedUserText, bool expected)
+        [InlineData("<at>Aaron Rosenberger</at>++", "<at>Aaron Rosenberger</at>")]
+        [InlineData("<at>Aaron Rosenberger</at> ++", "<at>Aaron Rosenberger</at>")]
+        [InlineData("<at>Aaron Rosenberger</at>++++", "<at>Aaron Rosenberger</at>")]
+        [InlineData("<at>Aaron Rosenberger</at> ++++", "<at>Aaron Rosenberger</at>")]
+        [InlineData("<at>Aaron Rosenberger</at>+++++++++++++++++", "<at>Aaron Rosenberger</at>")]
+        [InlineData("<at>Aaron Rosenberger</at> +++++++++++++++++", "<at>Aaron Rosenberger</at>")]
+        [InlineData("<at>Aaron Rosenberger</at>--", "<at>Aaron Rosenberger</at>")]
+        [InlineData("<at>Aaron Rosenberger</at> --", "<at>Aaron Rosenberger</at>")]
+        [InlineData("<at>Aaron Rosenberger</at>----", "<at>Aaron Rosenberger</at>")]
+        [InlineData("<at>Aaron Rosenberger</at> ----", "<at>Aaron Rosenberger</at>")]
+        [InlineData("<at>Aaron Rosenberger</at>-----------------", "<at>Aaron Rosenberger</at>")]
+        [InlineData("<at>Aaron Rosenberger</at> -----------------", "<at>Aaron Rosenberger</at>")]
+        [InlineData("<at>Aaron Rosenberger</at>+-", null)]
+        [InlineData("<at>Aaron Rosenberger</at> +-", null)]
+        [InlineData("<at>Aaron Rosenberger</at>+++-", null)]
+        [InlineData("<at>Aaron Rosenberger</at> +++-", null)]
+        [InlineData("<at>Aaron Rosenberger</at>++++++++++++++++-", null)]
+        [InlineData("<at>Aaron Rosenberger</at> ++++++++++++++++-", null)]
+        [InlineData("<at>Aaron Rosenberger</at>-+", null)]
+        [InlineData("<at>Aaron Rosenberger</at> -+", null)]
+        [InlineData("<at>Aaron Rosenberger</at>---+", null)]
+        [InlineData("<at>Aaron Rosenberger</at> ---+", null)]
+        [InlineData("<at>Aaron Rosenberger</at>----------------+", null)]
+        [InlineData("<at>Aaron Rosenberger</at> ----------------+", null)]
+        public void TestSomeoneWasGivenKarma(string message, string expected)
         {
-            var result = KarmaLogic.MentionedUserWasGivenKarma(message, mentionedUserText);
+            var result = KarmaLogic.SomeoneWasGivenKarma(message);
 
             Assert.Equal(result, expected);
         }
