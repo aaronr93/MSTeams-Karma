@@ -1,6 +1,5 @@
-﻿using MSTeams.Karma;
+﻿using MSTeams.Karma.BusinessLogic;
 using System;
-using MSTeams.Karma.BusinessLogic;
 using Xunit;
 
 namespace MSTeams_Karma.Tests
