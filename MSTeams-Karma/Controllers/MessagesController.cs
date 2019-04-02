@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
@@ -26,10 +27,12 @@ namespace MSTeams.Karma.Controllers
         {
             _karmaLogic = new KarmaLogic();
             _messageLogic = new MessageLogic();
+            _teamsLogic = new TeamsLogic();
         }
 
         private readonly KarmaLogic _karmaLogic;
         private readonly MessageLogic _messageLogic;
+        private readonly TeamsLogic _teamsLogic;
         
         [HttpGet]
         [Route("healthcheck")]
@@ -113,7 +116,7 @@ namespace MSTeams.Karma.Controllers
         private async Task<HttpResponseMessage> HandleGroupMessage(Activity activity, CancellationToken cancellationToken)
         {
             // Check for commands.
-            if (KarmaLogic.SomeoneWasGivenKarma(activity.Text) != null)
+            if (KarmaLogic.SomeoneWasGivenKarma(activity.Text))
             {
                 // Karma command
                 return await HandleKarmaChange(activity, cancellationToken);
@@ -151,30 +154,68 @@ namespace MSTeams.Karma.Controllers
             // Compose the bot's response
             var reply = activity.CreateReply(string.Empty, activity.Locale);
 
-            // Get Mentions
-            //var userMentions = Utilities.GetUserMentions(activity).ToList();
-            //if (userMentions.Any())
-            //{
-            //    // Only support 1 karma at a time, for now.
-            //    var firstMention = userMentions.First();
-            //    // Mention the user that was given karma
-            //    if (KarmaLogic.MentionedUserWasGivenKarma(activity.Text, firstMention.Text))
-            //    {
-            //        //reply.AddMentionToText(firstMention.Mentioned);
-            //    }
-            //}
-
             // Strip the mention of this bot
             Utilities.RemoveBotMentionsFromActivityText(activity);
 
-            // Process the alleged Karma instruction and add the response message
-            var replyMessage = await _karmaLogic.GetReplyMessageForKarma(activity.Text);
-            if (string.IsNullOrEmpty(replyMessage))
+            // TODO: Cache, and listen for team members added to invalidate the cache or add to it
+            var members = await _teamsLogic.GetTeamsConversationMembersAsync(activity.ServiceUrl, activity.Conversation.Id);
+
+            // Get Mentions
+            var userMentions = Utilities.GetUserMentions(activity).ToList();
+
+            // Remove spaces in entity names
+            foreach (var mention in userMentions)
             {
-                return null;
+                var mentionName = mention.Mentioned.Name;
+                var spaceStrippedMention = mentionName.Replace(" ", "");
+                activity.Text = activity.Text.Replace(mentionName, spaceStrippedMention);
             }
 
-            reply.Text += replyMessage;
+            // Get list of karma strings
+            var separatedBySpaces = activity.Text.Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries).ToList();
+            var karmaStuff = new List<KarmaStuff>();
+
+            // Add all the user karma strings
+            foreach (var mention in userMentions)
+            {
+                var mentionName = mention.Mentioned.Name;
+                var spaceStrippedMention = mentionName.Replace(" ", "");
+                var karmaString = separatedBySpaces.FirstOrDefault(a => a.Contains(spaceStrippedMention));
+                separatedBySpaces.Remove(karmaString);
+                karmaStuff.Add(new KarmaStuff
+                {
+                    KarmaString = karmaString,
+                    Name = mention.Mentioned.Name,
+                    UniqueId = mention.Mentioned.Id
+                });
+            }
+
+            // Now add all the non-user karma strings
+            foreach (var otherEntity in separatedBySpaces)
+            {
+                karmaStuff.Add(new KarmaStuff
+                {
+                    KarmaString = otherEntity
+                });
+            }
+
+            // Generate messages
+            foreach (var stuff in karmaStuff)
+            {
+                // Process the alleged Karma instruction and add the response message
+                if (KarmaLogic.SomeoneWasGivenKarma(stuff.KarmaString))
+                {
+                    var replyMessage = await _karmaLogic.GetReplyMessageForKarma(stuff.KarmaString, stuff.UniqueId, stuff.Name);
+                    if (string.IsNullOrEmpty(replyMessage))
+                    {
+                        return null;
+                    }
+
+                    reply.Text += replyMessage + ";";
+                }
+            }
+
+            reply.Text = reply.Text.TrimEnd(';');
 
             // Send the response. We need a new ConnectorClient each time so that this action is thread-safe.
             // For example, multiple teams may call the bot simultaneously; it should respond to the right conversation.
@@ -187,5 +228,12 @@ namespace MSTeams.Karma.Controllers
 
             return Request.CreateResponse(HttpStatusCode.OK);
         }
+    }
+
+    public class KarmaStuff
+    {
+        public string KarmaString { get; set; }
+        public string Name { get; set; }
+        public string UniqueId { get; set; }
     }
 }

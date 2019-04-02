@@ -8,8 +8,11 @@ namespace MSTeams.Karma.Models
 {
     public class KarmaModel
     {
-        [JsonProperty("id")]
+        [JsonProperty("id", Required = Required.Always)]
         public string Id { get; set; }
+
+        [JsonProperty("entity")]
+        public string Entity { get; set; }
 
         [JsonProperty("partition")]
         public string Partition { get; set; }

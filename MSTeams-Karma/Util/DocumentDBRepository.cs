@@ -29,8 +29,7 @@
         {
             try
             {
-                Document document = await client.ReadDocumentAsync(UriFactory.CreateDocumentUri(DatabaseId, CollectionId, id), RequestOptions(partition));
-                return (T)(dynamic)document;
+                return await client.ReadDocumentAsync<T>(UriFactory.CreateDocumentUri(DatabaseId, CollectionId, id), RequestOptions(partition));
             }
             catch (DocumentClientException e)
             {
