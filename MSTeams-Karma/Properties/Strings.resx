@@ -123,7 +123,13 @@
   <data name="BuzzkillModeMessage" xml:space="preserve">
     <value>has enforced a maximum change of 5 points</value>
   </data>
+  <data name="DidNotUnderstand" xml:space="preserve">
+    <value>Sorry, I didn't understand that.</value>
+  </data>
   <data name="MoreInformationLink" xml:space="preserve">
     <value>https://confluence.silverchair.com/display/~arosenberger/MSTeams+Karmabot</value>
+  </data>
+  <data name="SmallHelpMessage" xml:space="preserve">
+    <value>To change karma, mention me (@karma), then add between 2 and 6 pluses or minuses in front of someone or something.</value>
   </data>
 </root>

@@ -79,11 +79,29 @@ namespace MSTeams.Karma.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Sorry, I didn&apos;t understand that..
+        /// </summary>
+        internal static string DidNotUnderstand {
+            get {
+                return ResourceManager.GetString("DidNotUnderstand", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to https://confluence.silverchair.com/display/~arosenberger/MSTeams+Karmabot.
         /// </summary>
         internal static string MoreInformationLink {
             get {
                 return ResourceManager.GetString("MoreInformationLink", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to To change karma, mention me (@karma), then add between 2 and 6 pluses or minuses in front of someone or something..
+        /// </summary>
+        internal static string SmallHelpMessage {
+            get {
+                return ResourceManager.GetString("SmallHelpMessage", resourceCulture);
             }
         }
     }

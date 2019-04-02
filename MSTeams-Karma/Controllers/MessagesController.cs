@@ -25,9 +25,11 @@ namespace MSTeams.Karma.Controllers
         public MessagesController()
         {
             _karmaLogic = new KarmaLogic();
+            _messageLogic = new MessageLogic();
         }
 
         private readonly KarmaLogic _karmaLogic;
+        private readonly MessageLogic _messageLogic;
         
         [HttpGet]
         [Route("healthcheck")]
@@ -99,7 +101,13 @@ namespace MSTeams.Karma.Controllers
             }
 
             // Add things you *can* do in personal chat (like leaderboard checking) below.
-            return await ShowHelpMessage(activity, cancellationToken);
+
+            if (_messageLogic.IsAskingForHelp(activity.Text))
+            {
+                return await SendHelpMessage(activity, cancellationToken);
+            }
+
+            return await SendMessage(Strings.DidNotUnderstand, activity, cancellationToken);
         }
 
         private async Task<HttpResponseMessage> HandleGroupMessage(Activity activity, CancellationToken cancellationToken)
@@ -112,21 +120,24 @@ namespace MSTeams.Karma.Controllers
             }
 
             // Add more commands here.
-            return await ShowHelpMessage(activity, cancellationToken);
+
+            if (_messageLogic.IsAskingForHelp(activity.Text))
+            {
+                return await SendHelpMessage(activity, cancellationToken);
+            }
+
+            return await SendMessage(Strings.DidNotUnderstand, activity, cancellationToken);
         }
 
-        private async Task<HttpResponseMessage> ShowHelpMessage(Activity activity, CancellationToken cancellationToken)
+        private async Task<HttpResponseMessage> SendHelpMessage(Activity activity, CancellationToken cancellationToken)
         {
-            var replyBuilder = new StringBuilder();
-            replyBuilder.AppendLine("To change karma, mention me (@karma), then add between 2 and 6 pluses or minuses to add or remove karma.");
-            replyBuilder.AppendLine("Examples:");
-            replyBuilder.AppendLine("    @karma msteams-- (removes 1 karma)");
-            replyBuilder.AppendLine("    msteams-- @karma (removes 1 karma) (you can mention me anywhere in the message)");
-            replyBuilder.AppendLine("    @karma 🤔 ++++++ (adds 5 karma)");
-            replyBuilder.AppendLine($"    @karma \"Alex's Confluence pages\"+++++++++++ (adds 5 karma; limit enforced by {Strings.BuzzkillMode}");
-            replyBuilder.AppendLine($"More information: {Strings.MoreInformationLink}");
+            return await SendMessage($"{Strings.SmallHelpMessage} More information: {Strings.MoreInformationLink}", activity, cancellationToken);
+        }
 
-            var reply = activity.CreateReply(replyBuilder.ToString(), activity.Locale);
+        private async Task<HttpResponseMessage> SendMessage(string text, Activity activity, CancellationToken cancellationToken)
+        {
+            var reply = activity.CreateReply(text, activity.Locale);
+            
             using (var connectorClient = new ConnectorClient(new Uri(activity.ServiceUrl)))
             {
                 await connectorClient.Conversations.ReplyToActivityAsync(reply, cancellationToken);
