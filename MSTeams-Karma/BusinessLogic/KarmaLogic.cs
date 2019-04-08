@@ -23,14 +23,6 @@ namespace MSTeams.Karma.BusinessLogic
             "c++",
         };
 
-        // Add entities to this list that are given karma a lot.
-        // This will give them a different partition and better bandwidth usage.
-        // In the future, some basic learning could dynamically update this list.
-        private static readonly HashSet<string> Partitions = new HashSet<string>
-        {
-            "msteams"
-        };
-
         public KarmaLogic(IDocumentDbRepository<KarmaModel> documentDbRepository = null)
         {
             _db = documentDbRepository ?? DocumentDBRepository<KarmaModel>.Default;
@@ -50,12 +42,15 @@ namespace MSTeams.Karma.BusinessLogic
 
         private static string GetPartitionForKey(string key)
         {
-            if (Partitions.Contains(key))
+            if (!string.IsNullOrEmpty(key))
             {
-                return Partitions.FirstOrDefault(a => a == key);
+                // This was a Teams user. Separate into its own partition.
+                return "msteams_user";
             }
-
-            return DocumentDBRepository<KarmaModel>.DefaultPartition;
+            else
+            {
+                return "msteams_entity";
+            }
         }
 
 
@@ -91,8 +86,8 @@ namespace MSTeams.Karma.BusinessLogic
             }
 
             string id = uniqueId ?? uniqueEntity;
+            string partition = GetPartitionForKey(uniqueId);
 
-            string partition = GetPartitionForKey(id);
             KarmaModel karmaItem = await _db.GetItemAsync(id, partition);
 
             bool existsInDb = karmaItem != null;

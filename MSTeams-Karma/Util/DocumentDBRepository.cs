@@ -30,7 +30,6 @@ namespace MSTeams.Karma
         private readonly string CollectionId = ConfigurationManager.AppSettings["collection"];
         private readonly string AuthKey = ConfigurationManager.AppSettings["AzureCosmosPrimaryAuthKey"];
         private readonly string Endpoint = ConfigurationManager.AppSettings["AzureCosmosEndpoint"];
-        public const string DefaultPartition = "generalpartition";
 
         private RequestOptions RequestOptions(object partitionValue) => new RequestOptions
         { 
@@ -39,7 +38,7 @@ namespace MSTeams.Karma
 
         private DocumentClient client;
 
-        public async Task<T> GetItemAsync(string id, string partition = DefaultPartition)
+        public async Task<T> GetItemAsync(string id, string partition)
         {
             try
             {
@@ -75,17 +74,17 @@ namespace MSTeams.Karma
             return results;
         }
 
-        public async Task<Document> CreateItemAsync(T item, string partition = DefaultPartition)
+        public async Task<Document> CreateItemAsync(T item, string partition)
         {
             return await client.CreateDocumentAsync(UriFactory.CreateDocumentCollectionUri(DatabaseId, CollectionId), item, RequestOptions(partition), disableAutomaticIdGeneration: true);
         }
 
-        public async Task<Document> UpdateItemAsync(string id, T item, string partition = DefaultPartition)
+        public async Task<Document> UpdateItemAsync(string id, T item, string partition)
         {
             return await client.ReplaceDocumentAsync(UriFactory.CreateDocumentUri(DatabaseId, CollectionId, id), item, RequestOptions(partition));
         }
 
-        public async Task DeleteItemAsync(string id, string partition = DefaultPartition)
+        public async Task DeleteItemAsync(string id, string partition)
         {
             await client.DeleteDocumentAsync(UriFactory.CreateDocumentUri(DatabaseId, CollectionId, id), RequestOptions(partition));
         }

@@ -158,7 +158,7 @@ namespace MSTeams.Karma.Controllers
             Utilities.RemoveBotMentionsFromActivityText(activity);
 
             // TODO: Cache, and listen for team members added to invalidate the cache or add to it
-            var members = await _teamsLogic.GetTeamsConversationMembersAsync(activity.ServiceUrl, activity.Conversation.Id);
+            //var members = await _teamsLogic.GetTeamsConversationMembersAsync(activity.ServiceUrl, activity.Conversation.Id);
 
             var replies = await _teamsLogic.GetKarmaResponseTextsAsync(activity);
 
