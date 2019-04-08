@@ -14,7 +14,7 @@ using Microsoft.Bot.Connector;
 using Microsoft.Bot.Connector.Teams;
 using Microsoft.Azure.Documents.Client;
 using MSTeams.Karma.BusinessLogic;
-using MSTeams.Karma.Models;
+using MSTeams.Karma.Models; 
 using MSTeams.Karma.Properties;
 using Activity = Microsoft.Bot.Connector.Activity;
 
@@ -25,12 +25,10 @@ namespace MSTeams.Karma.Controllers
     {
         public MessagesController()
         {
-            _karmaLogic = new KarmaLogic();
             _messageLogic = new MessageLogic();
             _teamsLogic = new TeamsLogic();
         }
-
-        private readonly KarmaLogic _karmaLogic;
+        
         private readonly MessageLogic _messageLogic;
         private readonly TeamsLogic _teamsLogic;
         
@@ -40,7 +38,7 @@ namespace MSTeams.Karma.Controllers
         {
             string authKey = ConfigurationManager.AppSettings["AzureCosmosPrimaryAuthKey"];
             string endpoint = ConfigurationManager.AppSettings["AzureCosmosEndpoint"];
-            DocumentClient client = DocumentDBRepository<KarmaModel>.GetDocumentClient(endpoint, authKey);
+            DocumentClient client = DocumentDBRepository<KarmaModel>.Default.GetDocumentClient(endpoint, authKey);
             string responseMessage;
 
             try
@@ -92,7 +90,7 @@ namespace MSTeams.Karma.Controllers
         private async Task<HttpResponseMessage> HandlePersonalMessage(Activity activity, CancellationToken cancellationToken)
         {
             // Check for forbidden commands.
-            if (KarmaLogic.SomeoneWasGivenKarma(activity.Text) != null)
+            if (KarmaLogic.SomeoneWasGivenKarma(activity.Text))
             {
                 var reply = activity.CreateReply("You cannot change karma in a personal chat.", activity.Locale);
                 using (var connectorClient = new ConnectorClient(new Uri(activity.ServiceUrl)))
@@ -151,6 +149,8 @@ namespace MSTeams.Karma.Controllers
 
         private async Task<HttpResponseMessage> HandleKarmaChange(Activity activity, CancellationToken cancellationToken)
         {
+            Trace.TraceInformation($"Message: {activity.Text}");
+
             // Compose the bot's response
             var reply = activity.CreateReply(string.Empty, activity.Locale);
 
@@ -160,80 +160,44 @@ namespace MSTeams.Karma.Controllers
             // TODO: Cache, and listen for team members added to invalidate the cache or add to it
             var members = await _teamsLogic.GetTeamsConversationMembersAsync(activity.ServiceUrl, activity.Conversation.Id);
 
-            // Get Mentions
-            var userMentions = Utilities.GetUserMentions(activity).ToList();
+            var replies = await _teamsLogic.GetKarmaResponseTextsAsync(activity);
 
-            // Remove spaces in entity names
-            foreach (var mention in userMentions)
+            // If a lot of responses need to be given, put them all into one message.
+            if (replies.Count > 5)
             {
-                var mentionName = mention.Mentioned.Name;
-                var spaceStrippedMention = mentionName.Replace(" ", "");
-                activity.Text = activity.Text.Replace(mentionName, spaceStrippedMention);
-            }
-
-            // Get list of karma strings
-            var separatedBySpaces = activity.Text.Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries).ToList();
-            var karmaStuff = new List<KarmaStuff>();
-
-            // Add all the user karma strings
-            foreach (var mention in userMentions)
-            {
-                var mentionName = mention.Mentioned.Name;
-                var spaceStrippedMention = mentionName.Replace(" ", "");
-                var karmaString = separatedBySpaces.FirstOrDefault(a => a.Contains(spaceStrippedMention));
-                separatedBySpaces.Remove(karmaString);
-                karmaStuff.Add(new KarmaStuff
+                var sb = new StringBuilder();
+                foreach (var replyMsg in replies)
                 {
-                    KarmaString = karmaString,
-                    Name = mention.Mentioned.Name,
-                    UniqueId = mention.Mentioned.Id
-                });
-            }
+                    sb.AppendLine($"{replyMsg};\n");
+                }
+                reply.Text = sb.ToString();
 
-            // Now add all the non-user karma strings
-            foreach (var otherEntity in separatedBySpaces)
-            {
-                karmaStuff.Add(new KarmaStuff
+                // Send the response. We need a new ConnectorClient each time so that this action is thread-safe.
+                // For example, multiple teams may call the bot simultaneously; it should respond to the right conversation.
+                using (var connectorClient = new ConnectorClient(new Uri(activity.ServiceUrl)))
                 {
-                    KarmaString = otherEntity
-                });
-            }
+                    await connectorClient.Conversations.ReplyToActivityAsync(reply, cancellationToken);
+                }
 
-            // Generate messages
-            foreach (var stuff in karmaStuff)
+                Trace.TraceInformation($"Reply: {reply.Text}");
+            }
+            else
             {
-                // Process the alleged Karma instruction and add the response message
-                if (KarmaLogic.SomeoneWasGivenKarma(stuff.KarmaString))
+                // Otherwise, 3 separate messages is fine, and preferable for readability and better engagement.
+                using (var connectorClient = new ConnectorClient(new Uri(activity.ServiceUrl)))
                 {
-                    var replyMessage = await _karmaLogic.GetReplyMessageForKarma(stuff.KarmaString, stuff.UniqueId, stuff.Name);
-                    if (string.IsNullOrEmpty(replyMessage))
+                    foreach (var replyMsg in replies)
                     {
-                        return null;
+                        reply.Text = replyMsg;
+                        await connectorClient.Conversations.ReplyToActivityAsync(reply, cancellationToken);
+                        
+                        Trace.TraceInformation($"Reply: {reply.Text}");
                     }
-
-                    reply.Text += replyMessage + ";";
                 }
             }
 
-            reply.Text = reply.Text.TrimEnd(';');
-
-            // Send the response. We need a new ConnectorClient each time so that this action is thread-safe.
-            // For example, multiple teams may call the bot simultaneously; it should respond to the right conversation.
-            using (var connectorClient = new ConnectorClient(new Uri(activity.ServiceUrl)))
-            {
-                await connectorClient.Conversations.ReplyToActivityAsync(reply, cancellationToken);
-            }
-
-            Trace.TraceInformation($"<message>{activity.Text}</message><reply>{reply.Text}</reply>");
 
             return Request.CreateResponse(HttpStatusCode.OK);
         }
-    }
-
-    public class KarmaStuff
-    {
-        public string KarmaString { get; set; }
-        public string Name { get; set; }
-        public string UniqueId { get; set; }
     }
 }

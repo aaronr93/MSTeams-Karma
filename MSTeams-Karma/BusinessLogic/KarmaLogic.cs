@@ -31,6 +31,13 @@ namespace MSTeams.Karma.BusinessLogic
             "msteams"
         };
 
+        public KarmaLogic(IDocumentDbRepository<KarmaModel> documentDbRepository = null)
+        {
+            _db = documentDbRepository ?? DocumentDBRepository<KarmaModel>.Default;
+        }
+
+        private readonly IDocumentDbRepository<KarmaModel> _db;
+
         /// <summary>
         /// Returns if entity was given karma.
         /// </summary>
@@ -86,7 +93,7 @@ namespace MSTeams.Karma.BusinessLogic
             string id = uniqueId ?? uniqueEntity;
 
             string partition = GetPartitionForKey(id);
-            KarmaModel karmaItem = await DocumentDBRepository<KarmaModel>.GetItemAsync(id, partition);
+            KarmaModel karmaItem = await _db.GetItemAsync(id, partition);
 
             bool existsInDb = karmaItem != null;
             if (!existsInDb)
@@ -124,11 +131,11 @@ namespace MSTeams.Karma.BusinessLogic
 
             if (existsInDb)
             {
-                await DocumentDBRepository<KarmaModel>.UpdateItemAsync(id, karmaItem, partition);
+                await _db.UpdateItemAsync(id, karmaItem, partition);
             }
             else
             {
-                await DocumentDBRepository<KarmaModel>.CreateItemAsync(karmaItem, partition);
+                await _db.CreateItemAsync(karmaItem, partition);
             }
 
             return replyMessage;
