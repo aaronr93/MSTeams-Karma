@@ -104,10 +104,15 @@ namespace MSTeams.Karma.BusinessLogic
 
             string replyMessage = string.Empty;
 
-            if (Math.Abs(deltaLength) > 5)
+            if (deltaLength > 5)
             {
                 // BUZZKILL MODE
                 deltaLength = 5;
+                replyMessage += $"{Strings.BuzzkillMode} {Strings.BuzzkillModeMessage} ... ";
+            }
+            else if (deltaLength < -5)
+            {
+                deltaLength = -5;
                 replyMessage += $"{Strings.BuzzkillMode} {Strings.BuzzkillModeMessage} ... ";
             }
             
