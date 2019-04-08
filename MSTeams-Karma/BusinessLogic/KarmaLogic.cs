@@ -13,7 +13,8 @@ namespace MSTeams.Karma.BusinessLogic
     public class KarmaLogic
     {
         // To test the Regex: https://regexr.com/4aa2a
-        private const string KarmaRegex = @"((?:[^-+\s]+?)|(?:\""[^-+]+?\"")|(?:<at>[^-+]+?<\/at>))[ ]*([-]{2,}|[+]{2,})(?:\s|$)";
+        private static readonly Regex KarmaRegex = new Regex(@"((?:[^-+\s]+?)|(?:\""[^-+]+?\"")|(?:<at>[^-+]+?<\/at>))[ ]*([-]{2,}|[+]{2,})(?:\s|$)",
+            RegexOptions.Compiled);
         private const string ReplyMessageIncreasedFormat = "{0}'s karma has increased to {1}";
         private const string ReplyMessageDecreasedFormat = "{0}'s karma has decreased to {1}";
 
@@ -30,32 +31,21 @@ namespace MSTeams.Karma.BusinessLogic
             "msteams"
         };
 
+        public KarmaLogic(IDocumentDbRepository<KarmaModel> documentDbRepository = null)
+        {
+            _db = documentDbRepository ?? DocumentDBRepository<KarmaModel>.Default;
+        }
+
+        private readonly IDocumentDbRepository<KarmaModel> _db;
+
         /// <summary>
-        /// Returns an entity that was given karma, if any was given.
+        /// Returns if entity was given karma.
         /// </summary>
         /// <param name="message"></param>
         /// <returns></returns>
-        public static string SomeoneWasGivenKarma(string message)
+        public static bool SomeoneWasGivenKarma(string message)
         {
-            if (string.IsNullOrEmpty(message))
-            {
-                return null;
-            }
-
-            var karmaMatch = GetKarmaRegexMatch(message);
-            if (karmaMatch == null || !karmaMatch.Success)
-            {
-                return null;
-            }
-
-            if (karmaMatch.Groups.Count > 1)
-            {
-                return karmaMatch.Groups[1].Value;
-            }
-            else
-            {
-                return null;
-            }
+            return KarmaRegex.IsMatch(message ?? string.Empty);
         }
 
         private static string GetPartitionForKey(string key)
@@ -68,40 +58,50 @@ namespace MSTeams.Karma.BusinessLogic
             return DocumentDBRepository<KarmaModel>.DefaultPartition;
         }
 
-        public async Task<string> GetReplyMessageForKarma(string originalMessage)
-        {
-            var karmaMatch = GetKarmaRegexMatch(originalMessage);
 
-            // Entity: the string to which karma is given.
-            var entityForMessaging = SomeoneWasGivenKarma(originalMessage);
-            if (entityForMessaging == null)
+        /// <summary>
+        /// Responds to a karma request. NOTE: Assumes <paramref name="karmaString"/> is a valid karma string.
+        /// </summary>
+        /// <param name="karmaString">A valid karma string.</param>
+        /// <param name="uniqueId">If the entity given karma was a Teams user, the unique ID for that user</param>
+        /// <param name="givenName">If the entity given karma was a Teams user, the Given Name for that user</param>
+        /// <returns>The bot's response including the karma amount difference.</returns>
+        public async Task<string> GetReplyMessageForKarma(string karmaString, string uniqueId = null, string givenName = null)
+        {
+            // We don't want commonly used karma strings to be interpreted as karma, like "C++"
+            if (KarmaBlacklist.Contains(karmaString.Replace(" ", "")))
             {
                 return null;
             }
-            var uniqueEntity = Regex.Replace(entityForMessaging, "<.*?>|@|\"", "").ToLower();
-            uniqueEntity = Regex.Replace(uniqueEntity, "[\\s]+", "");
+
+            // Break down the karma string into parts
+            Match karmaMatch = GetKarmaRegexMatch(karmaString);
+
+            // Get the entity that was given karma
+            string entityForMessaging = karmaMatch.Groups[1].Value;
+            string uniqueEntity = givenName ?? Regex.Replace(entityForMessaging, "<.*?>|@|\"|[\\s]", "").ToLower();
 
             // Delta: the karma in pluses or minuses.
-            var delta = karmaMatch.Groups[2].Value;
-
+            string delta = karmaMatch.Groups[2].Value;
             // The amount of karma to give or take away.
-            var deltaLength = delta.Length - 1;
-            
-            // We don't want commonly used karma strings to be interpreted as karma, like "C++"
-            if (KarmaBlacklist.Contains((entityForMessaging + delta).Replace(" ", "")))
+            int deltaLength = delta.Length - 1;
+            if (delta.Contains("-"))
             {
-                return null;
+                deltaLength *= -1;
             }
 
-            var partition = GetPartitionForKey(uniqueEntity);
-            var karmaItem = await DocumentDBRepository<KarmaModel>.GetItemAsync(uniqueEntity, partition);
+            string id = uniqueId ?? uniqueEntity;
+
+            string partition = GetPartitionForKey(id);
+            KarmaModel karmaItem = await _db.GetItemAsync(id, partition);
 
             bool existsInDb = karmaItem != null;
             if (!existsInDb)
             {
                 karmaItem = new KarmaModel
                 {
-                    Id = uniqueEntity,
+                    Id = id,
+                    Entity = uniqueEntity,
                     Partition = partition,
                     Score = 0
                 };
@@ -109,31 +109,33 @@ namespace MSTeams.Karma.BusinessLogic
 
             string replyMessage = string.Empty;
 
-            if (deltaLength > 5)
+            if (Math.Abs(deltaLength) > 5)
             {
                 // BUZZKILL MODE
                 deltaLength = 5;
                 replyMessage += $"{Strings.BuzzkillMode} {Strings.BuzzkillModeMessage} ... ";
             }
             
-            if (delta.Contains("+"))
+            string messageFormat;
+            if (deltaLength > 0)
             {
-                karmaItem.Score += deltaLength;
-                replyMessage += string.Format(ReplyMessageIncreasedFormat, entityForMessaging, karmaItem.Score);
-            }
-            else if (delta.Contains("-"))
-            {
-                karmaItem.Score -= deltaLength;
-                replyMessage += string.Format(ReplyMessageDecreasedFormat, entityForMessaging, karmaItem.Score);
-            }
-
-            if (existsInDb)
-            {
-                await DocumentDBRepository<KarmaModel>.UpdateItemAsync(uniqueEntity, karmaItem, partition);
+                messageFormat = ReplyMessageIncreasedFormat;
             }
             else
             {
-                await DocumentDBRepository<KarmaModel>.CreateItemAsync(karmaItem, partition);
+                messageFormat = ReplyMessageDecreasedFormat;
+            }
+
+            karmaItem.Score += deltaLength;
+            replyMessage += string.Format(messageFormat, entityForMessaging, karmaItem.Score);
+
+            if (existsInDb)
+            {
+                await _db.UpdateItemAsync(id, karmaItem, partition);
+            }
+            else
+            {
+                await _db.CreateItemAsync(karmaItem, partition);
             }
 
             return replyMessage;
@@ -141,7 +143,7 @@ namespace MSTeams.Karma.BusinessLogic
 
         private static Match GetKarmaRegexMatch(string text)
         {
-            var karmaMatch = Regex.Match(text, KarmaRegex);
+            var karmaMatch = KarmaRegex.Match(text);
 
             if (!karmaMatch.Success || karmaMatch.Groups.Count != 3)
             {
@@ -150,27 +152,5 @@ namespace MSTeams.Karma.BusinessLogic
 
             return karmaMatch;
         }
-
-        //private static async Task<ConcurrentDictionary<string, KarmaModel>> GetKarmaFromCosmos()
-        //{
-        //    var contents = await DocumentDBRepository<Models.KarmaModel>.GetItemsAsync(x => !string.IsNullOrEmpty(x.Entity) && x.Score.HasValue);
-        //    var karmaStore = contents.ToList();
-        //    var karma = new ConcurrentDictionary<string, KarmaModel>();
-
-        //    foreach (var item in karmaStore)
-        //    {
-        //        karma.TryAdd(item.Entity, new KarmaModel { Score = item.Score.Value });
-        //    }
-
-        //    return karma;
-        //}
-        
-        //private static async Task WriteKarmaToCosmos(ConcurrentDictionary<string, KarmaModel> karma)
-        //{
-        //    foreach (var item in karma)
-        //    {
-        //        await DocumentDBRepository<Models.KarmaModel>.UpdateItemAsync(item.Key, item.Value);
-        //    }
-        //}
     }
 }

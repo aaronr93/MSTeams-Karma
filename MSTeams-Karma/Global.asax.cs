@@ -18,7 +18,7 @@ namespace MSTeams.Karma
         {
             GlobalConfiguration.Configure(WebApiConfig.Register);
 
-            DocumentDBRepository<KarmaModel>.Initialize();
+            DocumentDBRepository<KarmaModel>.Default.Initialize();
         }
     }
 }
