@@ -257,7 +257,8 @@
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="BusinessLogic\MessageLogic.cs" />
-    <Compile Include="BusinessLogic\TeamsLogic.cs" />
+    <Compile Include="BusinessLogic\TeamsToggleLogic.cs" />
+    <Compile Include="BusinessLogic\TeamsKarmaLogic.cs" />
     <Compile Include="Util\DocumentDBRepository.cs" />
     <Compile Include="Models\KarmaModel.cs" />
     <Compile Include="Controllers\MessagesController.cs" />

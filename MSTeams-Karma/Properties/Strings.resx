@@ -126,6 +126,12 @@
   <data name="DidNotUnderstand" xml:space="preserve">
     <value>Sorry, I didn't understand that.</value>
   </data>
+  <data name="DisableCommand" xml:space="preserve">
+    <value>disable karmabot</value>
+  </data>
+  <data name="EnableCommand" xml:space="preserve">
+    <value>enable karmabot</value>
+  </data>
   <data name="MoreInformationLink" xml:space="preserve">
     <value>https://confluence.silverchair.com/display/~arosenberger/MSTeams+Karmabot</value>
   </data>

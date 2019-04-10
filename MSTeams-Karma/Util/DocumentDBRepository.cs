@@ -13,6 +13,7 @@ namespace MSTeams.Karma
     public interface IDocumentDbRepository<T> where T : class
     {
         Task<T> GetItemAsync(string id, string partition);
+        Task<T> GetItemAsync(string collectionId, string id, string partition);
         Task<IEnumerable<T>> GetItemsAsync(Expression<Func<T, bool>> predicate);
         Task<Document> CreateItemAsync(T item, string partition);
         Task<Document> UpdateItemAsync(string id, T item, string partition);
@@ -40,9 +41,14 @@ namespace MSTeams.Karma
 
         public async Task<T> GetItemAsync(string id, string partition)
         {
+            return await GetItemAsync(CollectionId, id, partition);
+        }
+
+        public async Task<T> GetItemAsync(string collectionId, string id, string partition)
+        {
             try
             {
-                return await client.ReadDocumentAsync<T>(UriFactory.CreateDocumentUri(DatabaseId, CollectionId, id), RequestOptions(partition));
+                return await client.ReadDocumentAsync<T>(UriFactory.CreateDocumentUri(DatabaseId, collectionId, id), RequestOptions(partition));
             }
             catch (DocumentClientException e)
             {

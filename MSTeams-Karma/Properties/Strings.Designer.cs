@@ -88,6 +88,24 @@ namespace MSTeams.Karma.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to disable karmabot.
+        /// </summary>
+        internal static string DisableCommand {
+            get {
+                return ResourceManager.GetString("DisableCommand", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to enable karmabot.
+        /// </summary>
+        internal static string EnableCommand {
+            get {
+                return ResourceManager.GetString("EnableCommand", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to https://confluence.silverchair.com/display/~arosenberger/MSTeams+Karmabot.
         /// </summary>
         internal static string MoreInformationLink {

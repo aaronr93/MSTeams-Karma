@@ -9,31 +9,14 @@ using Activity = Microsoft.Bot.Connector.Activity;
 
 namespace MSTeams.Karma.BusinessLogic
 {
-    public class TeamsLogic
+    public class TeamsKarmaLogic
     {
         private readonly KarmaLogic _karmaLogic;
         private const string MultiWordKarmaRegexPattern = "\".*?\"[ ]?(\\+{2,6}|-{2,6})";
 
-        public TeamsLogic(KarmaLogic karmaLogic = null)
+        public TeamsKarmaLogic(KarmaLogic karmaLogic = null)
         {
             _karmaLogic = karmaLogic ?? new KarmaLogic();
-        }
-
-        public async Task<IList<ChannelAccount>> GetTeamsConversationMembersAsync(string serviceUrl, string conversationId)
-        {
-            try
-            {
-                using (var connectorClient = new ConnectorClient(new Uri(serviceUrl)))
-                {
-                    return await connectorClient.Conversations.GetConversationMembersAsync(conversationId);
-                }
-            }
-            catch (Exception e)
-            {
-                Trace.TraceError(e.Message);
-            }
-
-            return null;
         }
 
         public async Task<IList<string>> GetKarmaResponseTextsAsync(Activity activity)
@@ -119,6 +102,9 @@ namespace MSTeams.Karma.BusinessLogic
                 var spaceStrippedMention = mentionName.Replace(" ", "");
                 responses = responses.Select(a => a = a.Replace(spaceStrippedMention, mentionName)).ToList();
             }
+
+            // Remove extra line breaks
+            responses = responses.Select(a => a.Trim().Replace("\\r", "").Replace("\\n", "")).ToList();
 
             return responses;
         }

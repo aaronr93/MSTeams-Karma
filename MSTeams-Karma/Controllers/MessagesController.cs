@@ -26,11 +26,13 @@ namespace MSTeams.Karma.Controllers
         public MessagesController()
         {
             _messageLogic = new MessageLogic();
-            _teamsLogic = new TeamsLogic();
+            _teamsKarmaLogic = new TeamsKarmaLogic();
+            _teamsToggleLogic = new TeamsToggleLogic();
         }
         
         private readonly MessageLogic _messageLogic;
-        private readonly TeamsLogic _teamsLogic;
+        private readonly TeamsKarmaLogic _teamsKarmaLogic;
+        private readonly TeamsToggleLogic _teamsToggleLogic;
         
         [HttpGet]
         [Route("healthcheck")]
@@ -127,6 +129,15 @@ namespace MSTeams.Karma.Controllers
                 return await SendHelpMessage(activity, cancellationToken);
             }
 
+            if (_messageLogic.IsDisablingBot(activity.Text))
+            {
+                return await _teamsToggleLogic.DisableBotInChannel(activity);
+            }
+            else if (_messageLogic.IsEnablingBot(activity.Text))
+            {
+                return await _teamsToggleLogic.EnableBotInChannel(activity);
+            }
+
             return await SendMessage(Strings.DidNotUnderstand, activity, cancellationToken);
         }
 
@@ -157,10 +168,7 @@ namespace MSTeams.Karma.Controllers
             // Strip the mention of this bot
             Utilities.RemoveBotMentionsFromActivityText(activity);
 
-            // TODO: Cache, and listen for team members added to invalidate the cache or add to it
-            //var members = await _teamsLogic.GetTeamsConversationMembersAsync(activity.ServiceUrl, activity.Conversation.Id);
-
-            var replies = await _teamsLogic.GetKarmaResponseTextsAsync(activity);
+            var replies = await _teamsKarmaLogic.GetKarmaResponseTextsAsync(activity);
 
             // If a lot of responses need to be given, put them all into one message.
             if (replies.Count > 5)

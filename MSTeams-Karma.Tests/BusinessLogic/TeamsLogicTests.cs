@@ -17,7 +17,7 @@ namespace MSTeams_Karma.Tests
 {
     public class TeamsLogicTests
     {
-        private TeamsLogic GetTestTeamsLogic()
+        private TeamsKarmaLogic GetTestTeamsLogic()
         {
             var mockDb = Substitute.For<IDocumentDbRepository<KarmaModel>>();
             mockDb.GetItemAsync(Arg.Any<string>(), Arg.Any<string>()).Returns(callInfo => new KarmaModel
@@ -27,7 +27,7 @@ namespace MSTeams_Karma.Tests
             });
 
             var testKarmaLogic = new KarmaLogic(mockDb);
-            return new TeamsLogic(testKarmaLogic);
+            return new TeamsKarmaLogic(testKarmaLogic);
         }
 
         private Activity GetTestActivityFromFile(string filename)
@@ -43,11 +43,43 @@ namespace MSTeams_Karma.Tests
             return activity;
         }
 
+        [Theory]
+        [InlineData("TestMultiWordKarmaMessage01")]
+        [InlineData("TestMultiWordKarmaMessage02")]
+        public async Task TestMultiWordKarmaMessage(string filename)
+        {
+            Activity testActivity = GetTestActivityFromFile($"TestActivities\\{filename}.json");
+            TeamsKarmaLogic testTeamsLogic = GetTestTeamsLogic();
+            
+            var actual = await testTeamsLogic.GetKarmaResponseTextsAsync(testActivity);
+
+            actual.Should().BeEquivalentTo(new List<string>
+            {
+                "\"giving karma to phrases\"'s karma has increased to 1"
+            }, options => options.WithoutStrictOrdering());
+        }
+
+        [Theory]
+        [InlineData("TestSimpleKarmaMessage01")]
+        [InlineData("TestSimpleKarmaMessage02")]
+        public async Task TestSimpleKarmaMessage(string filename)
+        {
+            Activity testActivity = GetTestActivityFromFile($"TestActivities\\{filename}.json");
+            TeamsKarmaLogic testTeamsLogic = GetTestTeamsLogic();
+            
+            var actual = await testTeamsLogic.GetKarmaResponseTextsAsync(testActivity);
+
+            actual.Should().BeEquivalentTo(new List<string>
+            {
+                "msteams's karma has decreased to -1"
+            }, options => options.WithoutStrictOrdering());
+        }
+
         [Fact]
         public async Task TestMultipleKarmaSimultaneouslyAsync01()
         {
             Activity testActivity = GetTestActivityFromFile(@"TestActivities\TestMultipleKarmaSimultaneouslyAsync01.json");
-            TeamsLogic testTeamsLogic = GetTestTeamsLogic();
+            TeamsKarmaLogic testTeamsLogic = GetTestTeamsLogic();
             
             var actual = await testTeamsLogic.GetKarmaResponseTextsAsync(testActivity);
 
@@ -64,7 +96,7 @@ namespace MSTeams_Karma.Tests
         public async Task TestMultipleKarmaSimultaneouslyAsync02()
         {
             Activity testActivity = GetTestActivityFromFile(@"TestActivities\TestMultipleKarmaSimultaneouslyAsync02.json");
-            TeamsLogic testTeamsLogic = GetTestTeamsLogic();
+            TeamsKarmaLogic testTeamsLogic = GetTestTeamsLogic();
             
             var actual = await testTeamsLogic.GetKarmaResponseTextsAsync(testActivity);
 
