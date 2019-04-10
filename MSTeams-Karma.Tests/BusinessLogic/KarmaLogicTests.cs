@@ -31,6 +31,10 @@ namespace MSTeams_Karma.Tests
         [InlineData("<at>Aaron Rosenberger</at> ---+", false)]
         [InlineData("<at>Aaron Rosenberger</at>----------------+", false)]
         [InlineData("<at>Aaron Rosenberger</at> ----------------+", false)]
+        [InlineData("<at>Serena</at>++\n", true)]
+        [InlineData("<at>Serena</at>++\\n", true)]
+        [InlineData("<at>Serena</at>++\r\n", true)]
+        [InlineData("<at>Serena</at>++\\r\\n", true)]
         public void TestSomeoneWasGivenKarma(string message, bool expected)
         {
             var result = KarmaLogic.SomeoneWasGivenKarma(message);
