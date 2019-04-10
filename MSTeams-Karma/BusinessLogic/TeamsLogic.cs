@@ -111,6 +111,14 @@ namespace MSTeams.Karma.BusinessLogic
                     responses.Add(replyMessage);
                 }
             }
+            
+            // Add space back... "AaronRosenberger" -> "Aaron Rosenberger"
+            foreach (var mention in userMentions)
+            {
+                var mentionName = mention.Mentioned.Name;
+                var spaceStrippedMention = mentionName.Replace(" ", "");
+                responses = responses.Select(a => a = a.Replace(spaceStrippedMention, mentionName)).ToList();
+            }
 
             return responses;
         }

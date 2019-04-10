@@ -53,7 +53,7 @@ namespace MSTeams_Karma.Tests
 
             actual.Should().BeEquivalentTo(new List<string>
             {
-                "<at>ChrisPearson</at>'s karma has increased to 1",
+                "<at>Chris Pearson</at>'s karma has increased to 1",
                 "<at>Serena</at>'s karma has increased to 1",
                 "msteams's karma has decreased to -1",
                 "\"test message\"'s karma has increased to 1"
@@ -70,7 +70,7 @@ namespace MSTeams_Karma.Tests
 
             actual.Should().BeEquivalentTo(new List<string>
             {
-                "<at>AshleyRaba</at>'s karma has increased to 5",
+                "<at>Ashley Raba</at>'s karma has increased to 5",
                 "\"giving karma to phrases\"'s karma has increased to 1"
             }, options => options.WithoutStrictOrdering());
         }
