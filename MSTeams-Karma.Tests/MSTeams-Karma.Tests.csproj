@@ -127,6 +127,9 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="packages.config" />
+    <None Include="TestActivities\TestMultipleKarmaSimultaneouslyAsync02.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="TestActivities\TestMultipleKarmaSimultaneouslyAsync01.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

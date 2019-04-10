@@ -59,5 +59,20 @@ namespace MSTeams_Karma.Tests
                 "\"test message\"'s karma has increased to 1"
             }, options => options.WithoutStrictOrdering());
         }
+
+        [Fact]
+        public async Task TestMultipleKarmaSimultaneouslyAsync02()
+        {
+            Activity testActivity = GetTestActivityFromFile(@"TestActivities\TestMultipleKarmaSimultaneouslyAsync02.json");
+            TeamsLogic testTeamsLogic = GetTestTeamsLogic();
+            
+            var actual = await testTeamsLogic.GetKarmaResponseTextsAsync(testActivity);
+
+            actual.Should().BeEquivalentTo(new List<string>
+            {
+                "<at>AshleyRaba</at>'s karma has increased to 5",
+                "\"giving karma to phrases\"'s karma has increased to 1"
+            }, options => options.WithoutStrictOrdering());
+        }
     }
 }

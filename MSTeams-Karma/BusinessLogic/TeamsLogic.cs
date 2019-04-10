@@ -43,6 +43,9 @@ namespace MSTeams.Karma.BusinessLogic
             // Get Mentions
             var userMentions = Utilities.GetUserMentions(activity).ToList();
 
+            // Remove the space before the karma score
+            activity.Text = Regex.Replace(activity.Text, "[ ]([+-]{2,})", "$1");
+
             // Remove spaces in entity names
             foreach (var mention in userMentions)
             {

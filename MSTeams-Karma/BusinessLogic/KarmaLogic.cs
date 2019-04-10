@@ -13,7 +13,7 @@ namespace MSTeams.Karma.BusinessLogic
     public class KarmaLogic
     {
         // To test the Regex: https://regexr.com/4aa2a
-        private static readonly Regex KarmaRegex = new Regex(@"((?:[^-+\s]+?)|(?:\""[^-+]+?\"")|(?:<at>[^-+]+?<\/at>))[ ]*([-]{2,}|[+]{2,})(?:\s|$|\\\\n|\\\\r|\\r|\\n)+",
+        private static readonly Regex KarmaRegex = new Regex(@"^((?:[^-+\""\s]+?)|(?:\""[^-+\""]+?\"")|(?:<at>[^-+\""]+?<\/at>))[ ]*([-]{2,}|[+]{2,})(?:\s|$|\\\\n|\\\\r|\\r|\\n)+",
             RegexOptions.Compiled);
         private const string ReplyMessageIncreasedFormat = "{0}'s karma has increased to {1}";
         private const string ReplyMessageDecreasedFormat = "{0}'s karma has decreased to {1}";
