@@ -13,7 +13,7 @@ namespace MSTeams.Karma.BusinessLogic
     public class KarmaLogic
     {
         // To test the Regex: https://regexr.com/4aa2a
-        private static readonly Regex KarmaRegex = new Regex(@"^((?:[^-+\""\s]+?)|(?:\""[^-+\""]+?\"")|(?:<at>[^-+\""]+?<\/at>))[ ]*([-]{2,}|[+]{2,})(?:\s|$|\\\\n|\\\\r|\\r|\\n)+",
+        private static readonly Regex KarmaRegex = new Regex(@"^((?:[^-+\""\s]+?)|(?:\""[^-+\""]+?\"")|(?:<at>[^-+\""]+?<\/at>))[ ]*([-]{2,}|[+]{2,})(?:\s|$)+",
             RegexOptions.Compiled);
         private const string ReplyMessageIncreasedFormat = "{0}'s karma has increased to {1}";
         private const string ReplyMessageDecreasedFormat = "{0}'s karma has decreased to {1}";
@@ -35,9 +35,19 @@ namespace MSTeams.Karma.BusinessLogic
         /// </summary>
         /// <param name="message"></param>
         /// <returns></returns>
-        public static bool SomeoneWasGivenKarma(string message)
+        public static bool IsKarmaString(string message)
         {
             return KarmaRegex.IsMatch(message ?? string.Empty);
+        }
+
+        /// <summary>
+        /// Returns if any entity was given karma.
+        /// </summary>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        public static bool SomeoneReceivedKarmaInWholeMessage(string message)
+        {
+            return Regex.IsMatch(message ?? string.Empty, "[+-]{2,}");
         }
 
         private static string GetPartitionForKey(string key)

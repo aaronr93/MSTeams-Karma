@@ -37,5 +37,14 @@ namespace MSTeams.Karma
             }
         }
 
+        public static string TrimWhitespace(string text)
+        {
+            if (text == null)
+            {
+                return null;
+            }
+            return text.Trim().Trim('\n', '\r', ' ').Replace("\\r", "").Replace("\\n", "");
+        }
+
     }
 }

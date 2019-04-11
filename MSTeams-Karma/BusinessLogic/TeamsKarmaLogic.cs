@@ -83,7 +83,7 @@ namespace MSTeams.Karma.BusinessLogic
             foreach (var stuff in karmaStuff)
             {
                 // Process the alleged Karma instruction and add the response message
-                if (KarmaLogic.SomeoneWasGivenKarma(stuff.KarmaString))
+                if (KarmaLogic.IsKarmaString(stuff.KarmaString))
                 {
                     var replyMessage = await _karmaLogic.GetReplyMessageForKarma(stuff.KarmaString, stuff.UniqueId, stuff.Name);
                     if (string.IsNullOrEmpty(replyMessage))
@@ -104,7 +104,7 @@ namespace MSTeams.Karma.BusinessLogic
             }
 
             // Remove extra line breaks
-            responses = responses.Select(a => a.Trim().Replace("\\r", "").Replace("\\n", "")).ToList();
+            responses = responses.Select(a => Utilities.TrimWhitespace(a)).ToList();
 
             return responses;
         }

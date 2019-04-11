@@ -127,6 +127,12 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="packages.config" />
+    <None Include="TestActivities\TestSimpleKarmaMessage03.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="TestActivities\TestSimpleKarmaMessage04.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="TestActivities\TestSimpleKarmaMessage02.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

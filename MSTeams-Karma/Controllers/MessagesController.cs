@@ -91,8 +91,9 @@ namespace MSTeams.Karma.Controllers
 
         private async Task<HttpResponseMessage> HandlePersonalMessage(Activity activity, CancellationToken cancellationToken)
         {
+            activity.Text = Utilities.TrimWhitespace(activity.Text);
             // Check for forbidden commands.
-            if (KarmaLogic.SomeoneWasGivenKarma(activity.Text))
+            if (KarmaLogic.SomeoneReceivedKarmaInWholeMessage(activity.Text))
             {
                 var reply = activity.CreateReply("You cannot change karma in a personal chat.", activity.Locale);
                 using (var connectorClient = new ConnectorClient(new Uri(activity.ServiceUrl)))
@@ -115,8 +116,9 @@ namespace MSTeams.Karma.Controllers
 
         private async Task<HttpResponseMessage> HandleGroupMessage(Activity activity, CancellationToken cancellationToken)
         {
+            activity.Text = Utilities.TrimWhitespace(activity.Text);
             // Check for commands.
-            if (KarmaLogic.SomeoneWasGivenKarma(activity.Text))
+            if (KarmaLogic.SomeoneReceivedKarmaInWholeMessage(activity.Text))
             {
                 // Karma command
                 return await HandleKarmaChange(activity, cancellationToken);

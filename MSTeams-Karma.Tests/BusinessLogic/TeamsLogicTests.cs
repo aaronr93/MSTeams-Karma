@@ -40,6 +40,8 @@ namespace MSTeams_Karma.Tests
                 activity = JsonConvert.DeserializeObject<Activity>(json);
             }
 
+            activity.Text = Utilities.TrimWhitespace(activity.Text);
+
             return activity;
         }
 
@@ -62,6 +64,8 @@ namespace MSTeams_Karma.Tests
         [Theory]
         [InlineData("TestSimpleKarmaMessage01")]
         [InlineData("TestSimpleKarmaMessage02")]
+        [InlineData("TestSimpleKarmaMessage03")]
+        [InlineData("TestSimpleKarmaMessage04")]
         public async Task TestSimpleKarmaMessage(string filename)
         {
             Activity testActivity = GetTestActivityFromFile($"TestActivities\\{filename}.json");

@@ -1,0 +1,43 @@
+﻿{
+    "type": "message",
+    "id": "1554657902343",
+    "serviceUrl": "https://smba.trafficmanager.net/amer/",
+    "channelId": "msteams",
+    "from": {
+        "id": "29:1fQqVzt4MuItPSs1HCcB9u-a5o2Eh9rJTL01vXfDhxkhe3LQzopQmAg-cIjWqvkPr-lsxvcitU-Qj2CuGOxMCbQ",
+        "name": "Aaron Rosenberger",
+        "aadObjectId": "94e09f70-60e1-4abe-935a-aa4247ad9a6d",
+        "role": null
+    },
+    "conversation": {
+        "isGroup": true,
+        "conversationType": "channel",
+        "id": "19:60f98ff1f9524d6d8df6bf80cfe094b3@thread.skype;messageid=1554657902343",
+        "name": null,
+        "aadObjectId": null,
+        "role": null
+    },
+    "recipient": {
+        "id": "28:e58eef39-fbb7-4a72-9e9d-7d5e83ffcab8",
+        "name": "karma",
+        "aadObjectId": null,
+        "role": null
+    },
+    "text": "\\r\\n<at>karma</at> msteams --\\n",
+    "entities": [
+        {
+            "type": "mention",
+            "mentioned": {
+                "id": "28:e58eef39-fbb7-4a72-9e9d-7d5e83ffcab8",
+                "name": "karma"
+            },
+            "text": "<at>karma</at>"
+        },
+        {
+            "type": "clientInfo",
+            "locale": "en-US",
+            "country": "US",
+            "platform": "Web"
+        }
+    ]
+}
