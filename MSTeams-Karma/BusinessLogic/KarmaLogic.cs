@@ -23,9 +23,9 @@ namespace MSTeams.Karma.BusinessLogic
             "c++",
         };
 
-        public KarmaLogic(IDocumentDbRepository<KarmaModel> documentDbRepository = null)
+        public KarmaLogic(IDocumentDbRepository<KarmaModel> documentDbRepository)
         {
-            _db = documentDbRepository ?? DocumentDBRepository<KarmaModel>.Default;
+            _db = documentDbRepository;
         }
 
         private readonly IDocumentDbRepository<KarmaModel> _db;

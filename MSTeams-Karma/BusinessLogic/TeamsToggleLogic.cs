@@ -2,76 +2,99 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Net.Http;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.Bot.Connector;
-using Activity = Microsoft.Bot.Connector.Activity;
+using MSTeams.Karma.Models;
+using MSTeams.Karma.Properties;
 
 namespace MSTeams.Karma.BusinessLogic
 {
     public class TeamsToggleLogic
     {
-        public TeamsToggleLogic(IDocumentDbRepository<TeamsChannelMetadata> db = null)
+        public TeamsToggleLogic(IDocumentDbRepository<TeamsChannelMetadataModel> db)
         {
-            _db = db ?? DocumentDBRepository<TeamsChannelMetadata>.Default;
+            _db = db;
         }
 
-        private readonly IDocumentDbRepository<TeamsChannelMetadata> _db;
+        private readonly IDocumentDbRepository<TeamsChannelMetadataModel> _db;
         private static bool _isEnabled = true;
 
-        public async Task<bool> IsEnabledInChannel(string channelId, string teamId)
+        public bool IsEnabledInChannel => _isEnabled;
+
+        public bool IsDisablingBot(string message)
         {
-            // Don't make a DB call for every message when it's enabled.
-            if (_isEnabled)
-            {
-                return true;
-            }
-            // If it's disabled, check the database as a backup.
-            try
-            {
-                var metadata = await _db.GetItemAsync("teamsChannelMetadata", channelId, teamId);
-                return metadata.IsEnabled;
-            }
-            catch (Exception)
-            {
-                Trace.TraceError($"Error getting metadata for channel {channelId} in team {teamId}.");
-                return true;
-            }
+            return message.Contains(Strings.DisableCommand);
         }
-        
-        public async Task<HttpResponseMessage> DisableBotInChannel(Activity activity)
+
+        public bool IsEnablingBot(string message)
+        {
+            return message.Contains(Strings.EnableCommand);
+        }
+
+        public async Task<bool> DisableBotInChannel(IActivity activity)
+        {
+            return await ToggleBotInChannel(activity, false);
+        }
+
+        public async Task<bool> EnableBotInChannel(IActivity activity)
+        {
+            return await ToggleBotInChannel(activity, true);
+        }
+
+        private async Task<bool> ToggleBotInChannel(IActivity activity, bool enabled)
         {
             // First, check if the user sending the request is a Team Administrator.
-            if (activity.From.Role != "user")
+            if (activity.From.Role == "bot")
             {
-                return null;
+                return false;
             }
-            if (!activity.From.Name.Contains("TechOps"))
+            // THIS IS NOT THE BEST. I KNOW. I can't figure out how to get the list of admins for a channel.
+            // (The Teams Bot documentation sucks for advanced users.)
+            // Only let me and TechOps toggle the bot on and off.
+            if (activity.From.Name.Contains("TechOps") || activity.From.Name.Contains("Aaron Rosenberger"))
             {
-                // THIS IS NOT THE BEST. I KNOW. I can't figure out how to get the list of admins for a channel.
-                // (The Teams Bot documentation sucks for advanced users.)
-                return null;
+
+                string channelId = (string)activity.ChannelData["teamsChannelId"];
+                string teamId;
+
+                try
+                {
+                    teamId = (string)activity.ChannelData["teamsTeamId"];
+                }
+                catch (Exception)
+                {
+                    Trace.TraceError("Could not get team id.");
+                    teamId = "defaultpartition";
+                }
+
+                _isEnabled = enabled;
+                TeamsChannelMetadataModel metadata = await _db.GetItemAsync(channelId, teamId);
+
+                bool existsInDb = metadata != null;
+                if (!existsInDb)
+                {
+                    metadata = new TeamsChannelMetadataModel
+                    {
+                        Id = channelId,
+                        TeamId = teamId
+                    };
+                }
+
+                metadata.IsEnabled = _isEnabled;
+
+                if (existsInDb)
+                {
+                    await _db.UpdateItemAsync(metadata.Id, metadata, metadata.TeamId);
+                }
+                else
+                {
+                    await _db.CreateItemAsync(metadata, metadata.TeamId);
+                }
+
+                return true;
             }
 
-            _isEnabled = false;
-
-            return null;
+            return false;
         }
-
-        public async Task<HttpResponseMessage> EnableBotInChannel(Activity activity)
-        {
-            
-
-            _isEnabled = true;
-
-            return null;
-        }
-    }
-
-    public class TeamsChannelMetadata
-    {
-        public string Id { get; set; }
-        public bool IsEnabled { get; set; }
     }
 }

@@ -88,11 +88,29 @@ namespace MSTeams.Karma.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Disabled bot successfully.
+        /// </summary>
+        internal static string DisableBotSuccess {
+            get {
+                return ResourceManager.GetString("DisableBotSuccess", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to disable karmabot.
         /// </summary>
         internal static string DisableCommand {
             get {
                 return ResourceManager.GetString("DisableCommand", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Enabled bot successfully.
+        /// </summary>
+        internal static string EnableBotSuccess {
+            get {
+                return ResourceManager.GetString("EnableBotSuccess", resourceCulture);
             }
         }
         

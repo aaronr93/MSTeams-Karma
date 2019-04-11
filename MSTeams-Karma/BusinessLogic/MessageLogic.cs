@@ -13,15 +13,5 @@ namespace MSTeams.Karma.BusinessLogic
         {
             return Regex.IsMatch(message, "(help|-h|idk|\\?|man )");
         }
-
-        public bool IsDisablingBot(string message)
-        {
-            return message.Contains(Strings.DisableCommand);
-        }
-
-        public bool IsEnablingBot(string message)
-        {
-            return message.Contains(Strings.EnableCommand);
-        }
     }
 }

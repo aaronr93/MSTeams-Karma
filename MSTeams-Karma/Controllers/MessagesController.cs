@@ -23,42 +23,16 @@ namespace MSTeams.Karma.Controllers
     [BotAuthentication(MicrosoftAppIdSettingName = "MicrosoftAppId", MicrosoftAppPasswordSettingName = "MicrosoftAppPassword")]
     public class MessagesController : ApiController
     {
-        public MessagesController()
+        public MessagesController(MessageLogic messageLogic, TeamsKarmaLogic teamsKarmaLogic, TeamsToggleLogic teamsToggleLogic)
         {
-            _messageLogic = new MessageLogic();
-            _teamsKarmaLogic = new TeamsKarmaLogic();
-            _teamsToggleLogic = new TeamsToggleLogic();
+            _messageLogic = messageLogic;
+            _teamsKarmaLogic = teamsKarmaLogic;
+            _teamsToggleLogic = teamsToggleLogic;
         }
         
         private readonly MessageLogic _messageLogic;
         private readonly TeamsKarmaLogic _teamsKarmaLogic;
         private readonly TeamsToggleLogic _teamsToggleLogic;
-        
-        [HttpGet]
-        [Route("healthcheck")]
-        public async Task<string> HealthCheck()
-        {
-            string authKey = ConfigurationManager.AppSettings["AzureCosmosPrimaryAuthKey"];
-            string endpoint = ConfigurationManager.AppSettings["AzureCosmosEndpoint"];
-            DocumentClient client = DocumentDBRepository<KarmaModel>.Default.GetDocumentClient(endpoint, authKey);
-            string responseMessage;
-
-            try
-            {
-                await client.OpenAsync();
-                responseMessage = "Successfully opened database.";
-            }
-            catch (Exception)
-            {
-                responseMessage = "Unable to open database.";
-            }
-            finally
-            {
-                client.Dispose();
-            }
-
-            return responseMessage;
-        }
 
         public async Task<HttpResponseMessage> Post([FromBody]Activity activity, CancellationToken cancellationToken)
         {
@@ -116,7 +90,19 @@ namespace MSTeams.Karma.Controllers
 
         private async Task<HttpResponseMessage> HandleGroupMessage(Activity activity, CancellationToken cancellationToken)
         {
+            var enableDisableSucceeded = await CheckEnableDisable(activity, cancellationToken);
+            if (enableDisableSucceeded)
+            {
+                return null;
+            }
+
+            if (!_teamsToggleLogic.IsEnabledInChannel)
+            {
+                return null;
+            }
+
             activity.Text = Utilities.TrimWhitespace(activity.Text);
+
             // Check for commands.
             if (KarmaLogic.SomeoneReceivedKarmaInWholeMessage(activity.Text))
             {
@@ -131,16 +117,36 @@ namespace MSTeams.Karma.Controllers
                 return await SendHelpMessage(activity, cancellationToken);
             }
 
-            if (_messageLogic.IsDisablingBot(activity.Text))
+            return await SendMessage(Strings.DidNotUnderstand, activity, cancellationToken);
+        }
+
+        private async Task<bool> CheckEnableDisable(Activity activity, CancellationToken cancellationToken)
+        {
+            bool success = false;
+            string successMessage = null;
+
+            if (_teamsToggleLogic.IsDisablingBot(activity.Text))
             {
-                return await _teamsToggleLogic.DisableBotInChannel(activity);
+                success = await _teamsToggleLogic.DisableBotInChannel(activity);
+                successMessage = Strings.DisableBotSuccess;
             }
-            else if (_messageLogic.IsEnablingBot(activity.Text))
+            else if (_teamsToggleLogic.IsEnablingBot(activity.Text))
             {
-                return await _teamsToggleLogic.EnableBotInChannel(activity);
+                success = await _teamsToggleLogic.EnableBotInChannel(activity);
+                successMessage = Strings.EnableBotSuccess;
             }
 
-            return await SendMessage(Strings.DidNotUnderstand, activity, cancellationToken);
+            if (success)
+            {
+                var reply = activity.CreateReply(successMessage, activity.Locale);
+
+                using (var connectorClient = new ConnectorClient(new Uri(activity.ServiceUrl)))
+                {
+                    await connectorClient.Conversations.ReplyToActivityAsync(reply, cancellationToken);
+                }
+            }
+
+            return success;
         }
 
         private async Task<HttpResponseMessage> SendHelpMessage(Activity activity, CancellationToken cancellationToken)

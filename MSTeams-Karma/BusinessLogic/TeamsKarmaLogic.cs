@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Microsoft.Bot.Connector;
 using Activity = Microsoft.Bot.Connector.Activity;
 
 namespace MSTeams.Karma.BusinessLogic
@@ -14,9 +12,9 @@ namespace MSTeams.Karma.BusinessLogic
         private readonly KarmaLogic _karmaLogic;
         private const string MultiWordKarmaRegexPattern = "\".*?\"[ ]?(\\+{2,6}|-{2,6})";
 
-        public TeamsKarmaLogic(KarmaLogic karmaLogic = null)
+        public TeamsKarmaLogic(KarmaLogic karmaLogic)
         {
-            _karmaLogic = karmaLogic ?? new KarmaLogic();
+            _karmaLogic = karmaLogic;
         }
 
         public async Task<IList<string>> GetKarmaResponseTextsAsync(Activity activity)
