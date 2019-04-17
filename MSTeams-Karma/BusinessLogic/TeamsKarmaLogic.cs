@@ -35,18 +35,14 @@ namespace MSTeams.Karma.BusinessLogic
                 activity.Text = activity.Text.Replace(mentionName, spaceStrippedMention);
             }
 
-            var karmaStuff = new List<KarmaStuff>();
+            var karmaChanges = new List<KarmaChange>();
             var multiWordKarmaMatches = Regex.Matches(activity.Text, MultiWordKarmaRegexPattern, RegexOptions.RightToLeft);
             foreach (Match match in multiWordKarmaMatches)
             {
                 var karmaStr = match.Value;
                 var cleanName = karmaStr.TrimEnd(' ', '+', '-').Trim('\"');
-                karmaStuff.Add(new KarmaStuff
-                {
-                    Name = cleanName,
-                    KarmaString = karmaStr,
-                    UniqueId = cleanName.ToLower()  // less frustrating to have "test karma" and "Test Karma" use the same karma.
-                });
+                karmaChanges.Add(new KarmaChange(karmaStr, cleanName, cleanName.ToLower()));
+                // less frustrating to have "test karma" and "Test Karma" use the same karma.
                 activity.Text = activity.Text.Replace(karmaStr, "");
             }
 
@@ -60,30 +56,22 @@ namespace MSTeams.Karma.BusinessLogic
                 var spaceStrippedMention = mentionName.Replace(" ", "");
                 var karmaString = separatedBySpaces.FirstOrDefault(a => a.Contains(spaceStrippedMention));
                 separatedBySpaces.Remove(karmaString);
-                karmaStuff.Add(new KarmaStuff
-                {
-                    KarmaString = karmaString,
-                    Name = mention.Mentioned.Name,
-                    UniqueId = mention.Mentioned.Id
-                });
+                karmaChanges.Add(new KarmaChange(karmaString, mention.Mentioned.Name, mention.Mentioned.Id));
             }
 
             // Now add all the non-user karma strings
-            foreach (var otherEntity in separatedBySpaces)
+            foreach (var nonUserKarmaString in separatedBySpaces)
             {
-                karmaStuff.Add(new KarmaStuff
-                {
-                    KarmaString = otherEntity
-                });
+                karmaChanges.Add(new KarmaChange(nonUserKarmaString));
             }
 
             // Generate messages
-            foreach (var stuff in karmaStuff)
+            foreach (var karmaChange in karmaChanges.Distinct())
             {
                 // Process the alleged Karma instruction and add the response message
-                if (KarmaLogic.IsKarmaString(stuff.KarmaString))
+                if (KarmaLogic.IsKarmaString(karmaChange.KarmaString))
                 {
-                    var replyMessage = await _karmaLogic.GetReplyMessageForKarma(stuff.KarmaString, stuff.UniqueId, stuff.Name);
+                    var replyMessage = await _karmaLogic.GetReplyMessageForKarma(karmaChange.KarmaString, karmaChange.UniqueId, karmaChange.Name);
                     if (string.IsNullOrEmpty(replyMessage))
                     {
                         return null;
@@ -102,16 +90,45 @@ namespace MSTeams.Karma.BusinessLogic
             }
 
             // Remove extra line breaks
-            responses = responses.Select(a => Utilities.TrimWhitespace(a)).ToList();
+            responses = responses.Select(Utilities.TrimWhitespace).ToList();
 
             return responses;
         }
 
-        public class KarmaStuff
+        private class KarmaChange
         {
-            public string KarmaString { get; set; }
-            public string Name { get; set; }
-            public string UniqueId { get; set; }
+            public KarmaChange(string karmaString)
+            {
+                KarmaString = karmaString ?? throw new ArgumentNullException(nameof(karmaString));
+            }
+
+            public KarmaChange(string karmaString, string name, string uniqueId)
+            {
+                KarmaString = karmaString ?? throw new ArgumentNullException(nameof(karmaString));
+                Name = name;
+                UniqueId = uniqueId;
+            }
+
+            public string KarmaString { get; }
+            public string Name { get; }
+            public string UniqueId { get; }
+
+            public override bool Equals(object obj)
+            {
+                if (!(obj is KarmaChange other))
+                {
+                    return false;
+                }
+
+                // We don't care if the Name is different, because it could be "Aaron" or "Aaron Rosenberger"...same person.
+                return KarmaString.Equals(other.KarmaString) &&
+                       (UniqueId?.Equals(other.UniqueId) ?? false);
+            }
+
+            public override int GetHashCode()
+            {
+                return KarmaString.GetHashCode() * 17 + (UniqueId != null ? UniqueId.GetHashCode() : 0);
+            }
         }
     }
 }
