@@ -52,9 +52,9 @@ namespace MSTeams.Karma.BusinessLogic
             // Add all the user karma strings
             foreach (var mention in userMentions)
             {
-                var mentionName = mention.Mentioned.Name;
-                var spaceStrippedMention = mentionName.Replace(" ", "");
-                var karmaString = separatedBySpaces.FirstOrDefault(a => a.Contains(spaceStrippedMention));
+                string mentionName = mention.Mentioned.Name;
+                string spaceStrippedMention = mentionName.Replace(" ", "");
+                string karmaString = separatedBySpaces.FirstOrDefault(a => a.Contains(spaceStrippedMention));
                 separatedBySpaces.Remove(karmaString);
                 karmaChanges.Add(new KarmaChange(karmaString, mention.Mentioned.Name, mention.Mentioned.Id));
             }
@@ -62,11 +62,12 @@ namespace MSTeams.Karma.BusinessLogic
             // Now add all the non-user karma strings
             foreach (var nonUserKarmaString in separatedBySpaces)
             {
-                karmaChanges.Add(new KarmaChange(nonUserKarmaString));
+                string cleanName = nonUserKarmaString.TrimEnd(' ', '+', '-').Trim('\"');
+                karmaChanges.Add(new KarmaChange(nonUserKarmaString, cleanName, cleanName.ToLower()));
             }
 
             // Generate messages
-            foreach (var karmaChange in karmaChanges.Distinct())
+            foreach (var karmaChange in karmaChanges.Distinct(new DuplicateKarmaComparer()))
             {
                 // Process the alleged Karma instruction and add the response message
                 if (KarmaLogic.IsKarmaString(karmaChange.KarmaString))
@@ -97,16 +98,11 @@ namespace MSTeams.Karma.BusinessLogic
 
         private class KarmaChange
         {
-            public KarmaChange(string karmaString)
-            {
-                KarmaString = karmaString ?? throw new ArgumentNullException(nameof(karmaString));
-            }
-
             public KarmaChange(string karmaString, string name, string uniqueId)
             {
                 KarmaString = karmaString ?? throw new ArgumentNullException(nameof(karmaString));
-                Name = name;
-                UniqueId = uniqueId;
+                Name = name ?? throw new ArgumentNullException(nameof(name));
+                UniqueId = uniqueId ?? throw new ArgumentNullException(nameof(uniqueId));
             }
 
             public string KarmaString { get; }
@@ -121,13 +117,25 @@ namespace MSTeams.Karma.BusinessLogic
                 }
 
                 // We don't care if the Name is different, because it could be "Aaron" or "Aaron Rosenberger"...same person.
-                return KarmaString.Equals(other.KarmaString) &&
-                       (UniqueId?.Equals(other.UniqueId) ?? false);
+                return KarmaString.Equals(other.KarmaString) && UniqueId.Equals(other.UniqueId);
             }
 
             public override int GetHashCode()
             {
-                return KarmaString.GetHashCode() * 17 + (UniqueId != null ? UniqueId.GetHashCode() : 0);
+                return KarmaString.GetHashCode() * 17 + UniqueId.GetHashCode();
+            }
+        }
+
+        private class DuplicateKarmaComparer : IEqualityComparer<KarmaChange>
+        {
+            public bool Equals(KarmaChange x, KarmaChange y)
+            {
+                return x.UniqueId.Equals(y.UniqueId);
+            }
+
+            public int GetHashCode(KarmaChange obj)
+            {
+                return obj.UniqueId.GetHashCode();
             }
         }
     }

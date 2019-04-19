@@ -23,7 +23,7 @@
         "aadObjectId": null,
         "role": null
     },
-    "text": "\\r\\nSupport <at>karma</at> \"giving karma to phrases\"++ \"giving karma to phrases\"++ \"giving karma to phrases\"++ <at>Ashley Raba</at> ++++++\\n",
+    "text": "\\r\\nSupport <at>karma</at> \"giving karma to phrases\"++ \"giving karma to phrases\"+++ \"giving karma to phrases\"-- <at>Ashley Raba</at> ++++++\\n",
     "entities": [
         {
             "type": "mention",

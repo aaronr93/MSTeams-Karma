@@ -117,6 +117,13 @@ namespace MSTeams.Karma.Controllers
                 return await SendHelpMessage(activity, cancellationToken);
             }
 
+            // Often, users respond with a gif just after karma has been given. 
+            // they also accidentally mention @karma. Don't respond to this.
+            if (activity.Attachments.Any(a => a.ContentType.Contains("image")))
+            {
+                return null;
+            }
+
             return await SendMessage(Strings.DidNotUnderstand, activity, cancellationToken);
         }
 
