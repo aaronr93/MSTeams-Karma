@@ -1,6 +1,7 @@
 ﻿using System.Configuration;
 using System.Web.Http;
 using Autofac;
+using Autofac.Core;
 using Autofac.Integration.WebApi;
 using MSTeams.Karma.Models;
 using MSTeams.Karma.BusinessLogic;
@@ -36,7 +37,7 @@ namespace MSTeams.Karma
             builder.Register(a => new DocumentDbRepository<KarmaModel>("karma-collection")).As<IDocumentDbRepository<KarmaModel>>();
             builder.Register(a => new DocumentDbRepository<TeamsChannelMetadataModel>("teamsChannelMetadata")).As<IDocumentDbRepository<TeamsChannelMetadataModel>>();
             builder.RegisterType<KarmaLogic>();
-            builder.RegisterType<MessageLogic>();
+            builder.RegisterType<MessageLogic>().SingleInstance();
             builder.RegisterType<TeamsKarmaLogic>();
             builder.RegisterType<TeamsToggleLogic>();
             builder.RegisterType<MessagesController>();

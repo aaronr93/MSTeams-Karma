@@ -2,7 +2,7 @@
 using System;
 using Xunit;
 
-namespace MSTeams_Karma.Tests
+namespace MSTeams.Karma.Tests.BusinessLogic
 {
     public class KarmaLogicTests
     {

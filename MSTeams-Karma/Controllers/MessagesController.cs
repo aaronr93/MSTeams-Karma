@@ -103,6 +103,11 @@ namespace MSTeams.Karma.Controllers
 
             activity.Text = Utilities.TrimWhitespace(activity.Text);
 
+            if (_messageLogic.IsGettingScore(activity.Text))
+            {
+
+            }
+
             // Check for commands.
             if (KarmaLogic.SomeoneReceivedKarmaInWholeMessage(activity.Text))
             {

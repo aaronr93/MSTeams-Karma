@@ -9,7 +9,7 @@
     <ProjectGuid>{7026D223-447E-4A43-878E-C90A60A2A027}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MSTeams_Karma.Tests</RootNamespace>
+    <RootNamespace>MSTeams.Karma.Tests</RootNamespace>
     <AssemblyName>MSTeams-Karma.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -119,7 +119,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BusinessLogic\KarmaLogicTests.cs" />
-    <Compile Include="BusinessLogic\TeamsLogicTests.cs" />
+    <Compile Include="BusinessLogic\MessageLogicTests.cs" />
+    <Compile Include="BusinessLogic\TeamsKarmaLogicTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -127,6 +128,18 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="packages.config" />
+    <None Include="TestActivities\TestGetKarmaMSTeamsUser.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="TestActivities\TestGetKarmaMultiWord.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="TestActivities\TestGetKarma02.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="TestActivities\TestGetKarma01.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="TestActivities\TestSimpleKarmaMessage03.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

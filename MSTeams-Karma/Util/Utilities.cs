@@ -7,6 +7,9 @@ namespace MSTeams.Karma
 {
     public class Utilities
     {
+        public const string EntityRegex = @"((?:[^-+\""\s]+?)|(?:\""[^-+\""]+?\"")|(?:<at>[^-+\""]+?<\/at>))";
+        public const string WhitespaceRegex = @"[\s]+";
+
         public static IEnumerable<Mention> GetUserMentions(Activity activity)
         {
             return activity.GetMentions()

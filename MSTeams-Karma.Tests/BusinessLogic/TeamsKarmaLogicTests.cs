@@ -13,9 +13,9 @@ using MSTeams.Karma;
 using Newtonsoft.Json;
 using System.IO;
 
-namespace MSTeams_Karma.Tests
+namespace MSTeams.Karma.Tests.BusinessLogic
 {
-    public class TeamsLogicTests
+    public class TeamsKarmaLogicTests
     {
         private TeamsKarmaLogic GetTestTeamsLogic()
         {
@@ -50,7 +50,7 @@ namespace MSTeams_Karma.Tests
         [InlineData("TestMultiWordKarmaMessage02")]
         public async Task TestMultiWordKarmaMessage(string filename)
         {
-            Activity testActivity = GetTestActivityFromFile($"TestActivities\\{filename}.json");
+            Activity testActivity = GetTestActivityFromFile($@"TestActivities\{filename}.json");
             TeamsKarmaLogic testTeamsLogic = GetTestTeamsLogic();
             
             var actual = await testTeamsLogic.GetKarmaResponseTextsAsync(testActivity);
@@ -68,7 +68,7 @@ namespace MSTeams_Karma.Tests
         [InlineData("TestSimpleKarmaMessage04")]
         public async Task TestSimpleKarmaMessage(string filename)
         {
-            Activity testActivity = GetTestActivityFromFile($"TestActivities\\{filename}.json");
+            Activity testActivity = GetTestActivityFromFile($@"TestActivities\{filename}.json");
             TeamsKarmaLogic testTeamsLogic = GetTestTeamsLogic();
             
             var actual = await testTeamsLogic.GetKarmaResponseTextsAsync(testActivity);
@@ -108,6 +108,50 @@ namespace MSTeams_Karma.Tests
             {
                 "<at>Ashley Raba</at>'s karma has increased to 5",
                 "\"giving karma to phrases\"'s karma has decreased to -1"
+            }, options => options.WithoutStrictOrdering());
+        }
+
+        [Theory]
+        [InlineData("TestGetKarma01")]
+        [InlineData("TestGetKarma02")]
+        public async Task TestGetKarma(string filename)
+        {
+            Activity testActivity = GetTestActivityFromFile($@"TestActivities\{filename}.json");
+            TeamsKarmaLogic testTeamsLogic = GetTestTeamsLogic();
+            
+            var actual = await testTeamsLogic.GetKarmaResponseTextsAsync(testActivity);
+
+            actual.Should().BeEquivalentTo(new List<string>
+            {
+                "msteams has 0 karma"
+            }, options => options.WithoutStrictOrdering());
+        }
+
+        [Fact]
+        public async Task TestGetKarmaMultiWord()
+        {
+            Activity testActivity = GetTestActivityFromFile(@"TestActivities\TestGetKarmaMultiWord.json");
+            TeamsKarmaLogic testTeamsLogic = GetTestTeamsLogic();
+            
+            var actual = await testTeamsLogic.GetKarmaResponseTextsAsync(testActivity);
+
+            actual.Should().BeEquivalentTo(new List<string>
+            {
+                "\"karma test string\" has 0 karma"
+            }, options => options.WithoutStrictOrdering());
+        }
+
+        [Fact]
+        public async Task TestGetKarmaMSTeamsUser()
+        {
+            Activity testActivity = GetTestActivityFromFile(@"TestActivities\TestGetKarmaMSTeamsUser.json");
+            TeamsKarmaLogic testTeamsLogic = GetTestTeamsLogic();
+            
+            var actual = await testTeamsLogic.GetKarmaResponseTextsAsync(testActivity);
+
+            actual.Should().BeEquivalentTo(new List<string>
+            {
+                "<at>Aaron Rosenberger</at> has 0 karma"
             }, options => options.WithoutStrictOrdering());
         }
     }

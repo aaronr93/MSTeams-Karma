@@ -260,6 +260,7 @@
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="BusinessLogic\MessageLogic.cs" />
+    <Compile Include="BusinessLogic\TeamsScoreboardLogic.cs" />
     <Compile Include="Models\TeamsChannelMetadataModel.cs" />
     <Compile Include="BusinessLogic\TeamsToggleLogic.cs" />
     <Compile Include="BusinessLogic\TeamsKarmaLogic.cs" />
