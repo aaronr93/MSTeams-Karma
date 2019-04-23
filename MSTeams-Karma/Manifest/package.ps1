@@ -1,0 +1,1 @@
+Compress-Archive -Force manifest.json,karma.png -DestinationPath karma.zip
