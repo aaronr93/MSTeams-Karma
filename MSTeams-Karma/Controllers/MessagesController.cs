@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -20,18 +21,21 @@ namespace MSTeams.Karma.Controllers
         public MessagesController(MessageLogic messageLogic,
                                   Lazy<TeamsKarmaLogic> teamsKarmaLogic,
                                   Lazy<TeamsToggleLogic> teamsToggleLogic,
-                                  Lazy<TeamsScoreboardLogic> teamsScoreboardLogic)
+                                  Lazy<TeamsScoreboardLogic> teamsScoreboardLogic,
+                                  Lazy<TeamsScoreLogic> teamsScoreLogic)
         {
             _messageLogic = messageLogic;
             _teamsKarmaLogic = teamsKarmaLogic;
             _teamsToggleLogic = teamsToggleLogic;
             _teamsScoreboardLogic = teamsScoreboardLogic;
+            _teamsScoreLogic = teamsScoreLogic;
         }
         
         private readonly MessageLogic _messageLogic;
         private readonly Lazy<TeamsKarmaLogic> _teamsKarmaLogic;
         private readonly Lazy<TeamsToggleLogic> _teamsToggleLogic;
         private readonly Lazy<TeamsScoreboardLogic> _teamsScoreboardLogic;
+        private readonly Lazy<TeamsScoreLogic> _teamsScoreLogic;
 
         public async Task<HttpResponseMessage> Post([FromBody]Activity activity, CancellationToken cancellationToken)
         {
@@ -65,6 +69,21 @@ namespace MSTeams.Karma.Controllers
         private async Task<HttpResponseMessage> HandlePersonalMessage(Activity activity, CancellationToken cancellationToken)
         {
             activity.Text = Utilities.TrimWhitespace(activity.Text);
+
+            var scoreboardRegexMatch = _messageLogic.IsGettingScoreboard(activity.Text);
+            if (scoreboardRegexMatch.Success)
+            {
+                return await HandleScoreboardRequest(activity, scoreboardRegexMatch, cancellationToken);
+            }
+            else
+            {
+                var scoreRegexMatch = _messageLogic.IsGettingScore(activity.Text);
+                if (scoreRegexMatch.Success)
+                {
+                    return await HandleScoreRequest(activity, scoreRegexMatch, cancellationToken);
+                }
+            }
+
             // Check for forbidden commands.
             if (KarmaLogic.SomeoneReceivedKarmaInWholeMessage(activity.Text))
             {
@@ -78,7 +97,6 @@ namespace MSTeams.Karma.Controllers
             }
 
             // Add things you *can* do in personal chat (like leaderboard checking) below.
-
             if (_messageLogic.IsAskingForHelp(activity.Text))
             {
                 return await SendHelpMessage(activity, cancellationToken);
@@ -102,10 +120,18 @@ namespace MSTeams.Karma.Controllers
 
             activity.Text = Utilities.TrimWhitespace(activity.Text);
 
-            var scoreboardRegexMatch = _messageLogic.IsGettingScore(activity.Text);
+            var scoreboardRegexMatch = _messageLogic.IsGettingScoreboard(activity.Text);
             if (scoreboardRegexMatch.Success)
             {
-                
+                return await HandleScoreboardRequest(activity, scoreboardRegexMatch, cancellationToken);
+            }
+            else
+            {
+                var scoreRegexMatch = _messageLogic.IsGettingScore(activity.Text);
+                if (scoreRegexMatch.Success)
+                {
+                    return await HandleScoreRequest(activity, scoreRegexMatch, cancellationToken);
+                }
             }
 
             // Check for commands.
@@ -176,6 +202,18 @@ namespace MSTeams.Karma.Controllers
             }
 
             return null;
+        }
+
+        private async Task<HttpResponseMessage> HandleScoreRequest(Activity activity, Match match, CancellationToken cancellationToken)
+        {
+            var response = await _teamsScoreLogic.Value.GetScore(activity, match, cancellationToken);
+            return await SendMessage(response, activity, cancellationToken);
+        }
+
+        private async Task<HttpResponseMessage> HandleScoreboardRequest(Activity activity, Match match, CancellationToken cancellationToken)
+        {
+            var response = await _teamsScoreboardLogic.Value.GetScoreboard(activity, match, cancellationToken);
+            return await SendMessage(response, activity, cancellationToken);
         }
 
         private async Task<HttpResponseMessage> HandleKarmaChange(Activity activity, CancellationToken cancellationToken)

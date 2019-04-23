@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
 using Microsoft.Azure.Documents.Linq;
+using Newtonsoft.Json;
 
 namespace MSTeams.Karma
 {
@@ -50,21 +51,9 @@ namespace MSTeams.Karma
             }
         }
 
-        public async Task<IEnumerable<T>> GetItemsAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken)
+        public Uri GetCollectionUri()
         {
-            IDocumentQuery<T> query = _client.CreateDocumentQuery<T>(
-                UriFactory.CreateDocumentCollectionUri(_databaseId, _collectionId),
-                new FeedOptions { MaxItemCount = -1 })
-                .Where(predicate)
-                .AsDocumentQuery();
-
-            List<T> results = new List<T>();
-            while (query.HasMoreResults)
-            {
-                results.AddRange(await query.ExecuteNextAsync<T>(cancellationToken));
-            }
-
-            return results;
+            return UriFactory.CreateDocumentCollectionUri(_databaseId, _collectionId);
         }
 
         public async Task<Document> CreateItemAsync(T item, string partition, CancellationToken cancellationToken, bool disableAutomaticIdGeneration = true)
@@ -77,9 +66,10 @@ namespace MSTeams.Karma
             return await _client.ReplaceDocumentAsync(UriFactory.CreateDocumentUri(_databaseId, _collectionId, id), item, RequestOptions(partition), cancellationToken);
         }
 
-        public async Task DeleteItemAsync(string id, string partition, CancellationToken cancellationToken)
+        public async Task<T> ExecuteStoredProcedureAsync(string storedProcedureLink, string partition, CancellationToken cancellationToken, params dynamic[] procedureParams)
         {
-            await _client.DeleteDocumentAsync(UriFactory.CreateDocumentUri(_databaseId, _collectionId, id), RequestOptions(partition), cancellationToken);
+            var rawResult = await _client.ExecuteStoredProcedureAsync<string>(storedProcedureLink, RequestOptions(partition), cancellationToken, procedureParams);
+            return JsonConvert.DeserializeObject<T>(rawResult.Response);
         }
 
         public void Initialize()
@@ -87,9 +77,9 @@ namespace MSTeams.Karma
             _client = GetDocumentClient(_endpoint, _authKey);
         }
 
-        public DocumentClient GetDocumentClient(string endpoint, string authKey)
+        public DocumentClient GetDocumentClient(string endpoint = null, string authKey = null)
         {
-            return new DocumentClient(new Uri(endpoint), authKey);
+            return new DocumentClient(new Uri(endpoint ?? _endpoint), authKey ?? _authKey);
         }
     }
 }

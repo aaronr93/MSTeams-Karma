@@ -128,18 +128,6 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="packages.config" />
-    <None Include="TestActivities\TestGetKarmaMSTeamsUser.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="TestActivities\TestGetKarmaMultiWord.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="TestActivities\TestGetKarma02.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="TestActivities\TestGetKarma01.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="TestActivities\TestSimpleKarmaMessage03.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
