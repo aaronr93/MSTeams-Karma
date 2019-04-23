@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
@@ -9,12 +7,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http;
-using NLog;
 using Microsoft.Bot.Connector;
-using Microsoft.Bot.Connector.Teams;
-using Microsoft.Azure.Documents.Client;
 using MSTeams.Karma.BusinessLogic;
-using MSTeams.Karma.Models; 
 using MSTeams.Karma.Properties;
 using Activity = Microsoft.Bot.Connector.Activity;
 
@@ -23,16 +17,21 @@ namespace MSTeams.Karma.Controllers
     [BotAuthentication(MicrosoftAppIdSettingName = "MicrosoftAppId", MicrosoftAppPasswordSettingName = "MicrosoftAppPassword")]
     public class MessagesController : ApiController
     {
-        public MessagesController(MessageLogic messageLogic, TeamsKarmaLogic teamsKarmaLogic, TeamsToggleLogic teamsToggleLogic)
+        public MessagesController(MessageLogic messageLogic,
+                                  Lazy<TeamsKarmaLogic> teamsKarmaLogic,
+                                  Lazy<TeamsToggleLogic> teamsToggleLogic,
+                                  Lazy<TeamsScoreboardLogic> teamsScoreboardLogic)
         {
             _messageLogic = messageLogic;
             _teamsKarmaLogic = teamsKarmaLogic;
             _teamsToggleLogic = teamsToggleLogic;
+            _teamsScoreboardLogic = teamsScoreboardLogic;
         }
         
         private readonly MessageLogic _messageLogic;
-        private readonly TeamsKarmaLogic _teamsKarmaLogic;
-        private readonly TeamsToggleLogic _teamsToggleLogic;
+        private readonly Lazy<TeamsKarmaLogic> _teamsKarmaLogic;
+        private readonly Lazy<TeamsToggleLogic> _teamsToggleLogic;
+        private readonly Lazy<TeamsScoreboardLogic> _teamsScoreboardLogic;
 
         public async Task<HttpResponseMessage> Post([FromBody]Activity activity, CancellationToken cancellationToken)
         {
@@ -96,16 +95,17 @@ namespace MSTeams.Karma.Controllers
                 return null;
             }
 
-            if (!_teamsToggleLogic.IsEnabledInChannel)
+            if (!_teamsToggleLogic.Value.IsEnabledInChannel)
             {
                 return null;
             }
 
             activity.Text = Utilities.TrimWhitespace(activity.Text);
 
-            if (_messageLogic.IsGettingScore(activity.Text))
+            var scoreboardRegexMatch = _messageLogic.IsGettingScore(activity.Text);
+            if (scoreboardRegexMatch.Success)
             {
-
+                
             }
 
             // Check for commands.
@@ -137,14 +137,14 @@ namespace MSTeams.Karma.Controllers
             bool success = false;
             string successMessage = null;
 
-            if (_teamsToggleLogic.IsDisablingBot(activity.Text))
+            if (_teamsToggleLogic.Value.IsDisablingBot(activity.Text))
             {
-                success = await _teamsToggleLogic.DisableBotInChannel(activity);
+                success = await _teamsToggleLogic.Value.DisableBotInChannel(activity, cancellationToken);
                 successMessage = Strings.DisableBotSuccess;
             }
-            else if (_teamsToggleLogic.IsEnablingBot(activity.Text))
+            else if (_teamsToggleLogic.Value.IsEnablingBot(activity.Text))
             {
-                success = await _teamsToggleLogic.EnableBotInChannel(activity);
+                success = await _teamsToggleLogic.Value.EnableBotInChannel(activity, cancellationToken);
                 successMessage = Strings.EnableBotSuccess;
             }
 
@@ -188,7 +188,7 @@ namespace MSTeams.Karma.Controllers
             // Strip the mention of this bot
             Utilities.RemoveBotMentionsFromActivityText(activity);
 
-            var replies = await _teamsKarmaLogic.GetKarmaResponseTextsAsync(activity);
+            var replies = await _teamsKarmaLogic.Value.GetKarmaResponseTextsAsync(activity, cancellationToken);
 
             // If a lot of responses need to be given, put them all into one message.
             if (replies.Count > 5)

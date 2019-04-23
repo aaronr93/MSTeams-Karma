@@ -14,12 +14,19 @@ namespace MSTeams.Karma.BusinessLogic
 
         private const string ThingsSlopPhrases = "things|thing|thinsg|thnigs|thigns|htings|thisng";
         private const string UsersSlopPhrases = "users|user|usrs|usres|suers|usr|suer|usre";
-        public bool IsGettingScore(string message)
+
+        private static string ScoreRegex = $@"<at>karma</at>{Utilities.WhitespaceRegex}get{Utilities.WhitespaceRegex}{Utilities.EntityRegex}[\s\n]*(\.|\!)?$";
+        public Match IsGettingScore(string message)
         {
-            var whitespace = Utilities.WhitespaceRegex;
             message = Utilities.TrimWhitespace(message);
-            return Regex.IsMatch(message, $@"<at>karma</at>{whitespace}get{whitespace}(top|bottom){whitespace}({ThingsSlopPhrases}|{UsersSlopPhrases})[\s\n]*(\.|\!)?$") ||
-                Regex.IsMatch(message, $@"<at>karma</at>{whitespace}get{whitespace}{Utilities.EntityRegex}[\s\n]*(\.|\!)?$");
+            return Regex.Match(message, ScoreRegex);
+        }
+
+        private static string ScoreboardRegex = $@"<at>karma</at>{Utilities.WhitespaceRegex}get{Utilities.WhitespaceRegex}(top|bottom){Utilities.WhitespaceRegex}({ThingsSlopPhrases}|{UsersSlopPhrases})[\s\n]*(\.|\!)?$";
+        public Match IsGettingScoreboard(string message)
+        {
+            message = Utilities.TrimWhitespace(message);
+            return Regex.Match(message, ScoreboardRegex);
         }
     }
 }

@@ -40,6 +40,7 @@ namespace MSTeams.Karma
             builder.RegisterType<MessageLogic>().SingleInstance();
             builder.RegisterType<TeamsKarmaLogic>();
             builder.RegisterType<TeamsToggleLogic>();
+            builder.RegisterType<TeamsScoreboardLogic>();
             builder.RegisterType<MessagesController>();
 
             _container = builder.Build();

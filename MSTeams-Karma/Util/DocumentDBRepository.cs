@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
@@ -30,11 +31,11 @@ namespace MSTeams.Karma
 
         private DocumentClient _client;
 
-        public async Task<T> GetItemAsync(string id, string partition)
+        public async Task<T> GetItemAsync(string id, string partition, CancellationToken cancellationToken)
         {
             try
             {
-                return await _client.ReadDocumentAsync<T>(UriFactory.CreateDocumentUri(_databaseId, _collectionId, id), RequestOptions(partition));
+                return await _client.ReadDocumentAsync<T>(UriFactory.CreateDocumentUri(_databaseId, _collectionId, id), RequestOptions(partition), cancellationToken);
             }
             catch (DocumentClientException e)
             {
@@ -49,7 +50,7 @@ namespace MSTeams.Karma
             }
         }
 
-        public async Task<IEnumerable<T>> GetItemsAsync(Expression<Func<T, bool>> predicate)
+        public async Task<IEnumerable<T>> GetItemsAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken)
         {
             IDocumentQuery<T> query = _client.CreateDocumentQuery<T>(
                 UriFactory.CreateDocumentCollectionUri(_databaseId, _collectionId),
@@ -60,25 +61,25 @@ namespace MSTeams.Karma
             List<T> results = new List<T>();
             while (query.HasMoreResults)
             {
-                results.AddRange(await query.ExecuteNextAsync<T>());
+                results.AddRange(await query.ExecuteNextAsync<T>(cancellationToken));
             }
 
             return results;
         }
 
-        public async Task<Document> CreateItemAsync(T item, string partition, bool disableAutomaticIdGeneration = true)
+        public async Task<Document> CreateItemAsync(T item, string partition, CancellationToken cancellationToken, bool disableAutomaticIdGeneration = true)
         {
-            return await _client.CreateDocumentAsync(UriFactory.CreateDocumentCollectionUri(_databaseId, _collectionId), item, RequestOptions(partition), disableAutomaticIdGeneration);
+            return await _client.CreateDocumentAsync(UriFactory.CreateDocumentCollectionUri(_databaseId, _collectionId), item, RequestOptions(partition), disableAutomaticIdGeneration, cancellationToken);
         }
 
-        public async Task<Document> UpdateItemAsync(string id, T item, string partition)
+        public async Task<Document> UpdateItemAsync(string id, T item, string partition, CancellationToken cancellationToken)
         {
-            return await _client.ReplaceDocumentAsync(UriFactory.CreateDocumentUri(_databaseId, _collectionId, id), item, RequestOptions(partition));
+            return await _client.ReplaceDocumentAsync(UriFactory.CreateDocumentUri(_databaseId, _collectionId, id), item, RequestOptions(partition), cancellationToken);
         }
 
-        public async Task DeleteItemAsync(string id, string partition)
+        public async Task DeleteItemAsync(string id, string partition, CancellationToken cancellationToken)
         {
-            await _client.DeleteDocumentAsync(UriFactory.CreateDocumentUri(_databaseId, _collectionId, id), RequestOptions(partition));
+            await _client.DeleteDocumentAsync(UriFactory.CreateDocumentUri(_databaseId, _collectionId, id), RequestOptions(partition), cancellationToken);
         }
 
         public void Initialize()

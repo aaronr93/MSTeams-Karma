@@ -12,6 +12,7 @@ using MSTeams.Karma.Models;
 using MSTeams.Karma;
 using Newtonsoft.Json;
 using System.IO;
+using System.Threading;
 
 namespace MSTeams.Karma.Tests.BusinessLogic
 {
@@ -20,7 +21,7 @@ namespace MSTeams.Karma.Tests.BusinessLogic
         private TeamsKarmaLogic GetTestTeamsLogic()
         {
             var mockDb = Substitute.For<IDocumentDbRepository<KarmaModel>>();
-            mockDb.GetItemAsync(Arg.Any<string>(), Arg.Any<string>()).Returns(callInfo => new KarmaModel
+            mockDb.GetItemAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(callInfo => new KarmaModel
             {
                 Id = callInfo.ArgAt<string>(0),
                 Score = 0
@@ -53,7 +54,7 @@ namespace MSTeams.Karma.Tests.BusinessLogic
             Activity testActivity = GetTestActivityFromFile($@"TestActivities\{filename}.json");
             TeamsKarmaLogic testTeamsLogic = GetTestTeamsLogic();
             
-            var actual = await testTeamsLogic.GetKarmaResponseTextsAsync(testActivity);
+            var actual = await testTeamsLogic.GetKarmaResponseTextsAsync(testActivity, default(CancellationToken));
 
             actual.Should().BeEquivalentTo(new List<string>
             {
@@ -71,7 +72,7 @@ namespace MSTeams.Karma.Tests.BusinessLogic
             Activity testActivity = GetTestActivityFromFile($@"TestActivities\{filename}.json");
             TeamsKarmaLogic testTeamsLogic = GetTestTeamsLogic();
             
-            var actual = await testTeamsLogic.GetKarmaResponseTextsAsync(testActivity);
+            var actual = await testTeamsLogic.GetKarmaResponseTextsAsync(testActivity, default(CancellationToken));
 
             actual.Should().BeEquivalentTo(new List<string>
             {
@@ -85,7 +86,7 @@ namespace MSTeams.Karma.Tests.BusinessLogic
             Activity testActivity = GetTestActivityFromFile(@"TestActivities\TestMultipleKarmaSimultaneouslyAsync01.json");
             TeamsKarmaLogic testTeamsLogic = GetTestTeamsLogic();
             
-            var actual = await testTeamsLogic.GetKarmaResponseTextsAsync(testActivity);
+            var actual = await testTeamsLogic.GetKarmaResponseTextsAsync(testActivity, default(CancellationToken));
 
             actual.Should().BeEquivalentTo(new List<string>
             {
@@ -102,7 +103,7 @@ namespace MSTeams.Karma.Tests.BusinessLogic
             Activity testActivity = GetTestActivityFromFile(@"TestActivities\TestMultipleKarmaSimultaneouslyAsync02.json");
             TeamsKarmaLogic testTeamsLogic = GetTestTeamsLogic();
             
-            var actual = await testTeamsLogic.GetKarmaResponseTextsAsync(testActivity);
+            var actual = await testTeamsLogic.GetKarmaResponseTextsAsync(testActivity, default(CancellationToken));
 
             actual.Should().BeEquivalentTo(new List<string>
             {
@@ -119,7 +120,7 @@ namespace MSTeams.Karma.Tests.BusinessLogic
             Activity testActivity = GetTestActivityFromFile($@"TestActivities\{filename}.json");
             TeamsKarmaLogic testTeamsLogic = GetTestTeamsLogic();
             
-            var actual = await testTeamsLogic.GetKarmaResponseTextsAsync(testActivity);
+            var actual = await testTeamsLogic.GetKarmaResponseTextsAsync(testActivity, default(CancellationToken));
 
             actual.Should().BeEquivalentTo(new List<string>
             {
@@ -133,7 +134,7 @@ namespace MSTeams.Karma.Tests.BusinessLogic
             Activity testActivity = GetTestActivityFromFile(@"TestActivities\TestGetKarmaMultiWord.json");
             TeamsKarmaLogic testTeamsLogic = GetTestTeamsLogic();
             
-            var actual = await testTeamsLogic.GetKarmaResponseTextsAsync(testActivity);
+            var actual = await testTeamsLogic.GetKarmaResponseTextsAsync(testActivity, default(CancellationToken));
 
             actual.Should().BeEquivalentTo(new List<string>
             {
@@ -147,7 +148,7 @@ namespace MSTeams.Karma.Tests.BusinessLogic
             Activity testActivity = GetTestActivityFromFile(@"TestActivities\TestGetKarmaMSTeamsUser.json");
             TeamsKarmaLogic testTeamsLogic = GetTestTeamsLogic();
             
-            var actual = await testTeamsLogic.GetKarmaResponseTextsAsync(testActivity);
+            var actual = await testTeamsLogic.GetKarmaResponseTextsAsync(testActivity, default(CancellationToken));
 
             actual.Should().BeEquivalentTo(new List<string>
             {

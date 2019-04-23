@@ -30,7 +30,7 @@ namespace MSTeams.Karma.Tests.BusinessLogic
         [InlineData("<at>karma</at> msteams-- get top things", false)]
         public void TestGetTopThings(string message, bool expectedValue)
         {
-            new MessageLogic().IsGettingScore(message).Should().Be(expectedValue);
+            new MessageLogic().IsGettingScoreboard(message).Success.Should().Be(expectedValue);
         }
 
         [Theory]
@@ -53,7 +53,7 @@ namespace MSTeams.Karma.Tests.BusinessLogic
         [InlineData("<at>karma</at> msteams-- get bottom things", false)]
         public void TestGetBottomThings(string message, bool expectedValue)
         {
-            new MessageLogic().IsGettingScore(message).Should().Be(expectedValue);
+            new MessageLogic().IsGettingScoreboard(message).Success.Should().Be(expectedValue);
         }
 
         [Theory]
@@ -74,7 +74,7 @@ namespace MSTeams.Karma.Tests.BusinessLogic
         [InlineData("<at>karma</at> msteams-- get top users", false)]
         public void TestGetTopUsers(string message, bool expectedValue)
         {
-            new MessageLogic().IsGettingScore(message).Should().Be(expectedValue);
+            new MessageLogic().IsGettingScoreboard(message).Success.Should().Be(expectedValue);
         }
 
         [Theory]
@@ -95,7 +95,7 @@ namespace MSTeams.Karma.Tests.BusinessLogic
         [InlineData("<at>karma</at> msteams-- get bottom users", false)]
         public void TestGetBottomUsers(string message, bool expectedValue)
         {
-            new MessageLogic().IsGettingScore(message).Should().Be(expectedValue);
+            new MessageLogic().IsGettingScoreboard(message).Success.Should().Be(expectedValue);
         }
 
         [Theory]
@@ -113,7 +113,7 @@ namespace MSTeams.Karma.Tests.BusinessLogic
         [InlineData("<at>karma</at> get msteams--", false)]
         public void TestGetUser(string message, bool expectedValue)
         {
-            new MessageLogic().IsGettingScore(message).Should().Be(expectedValue);
+            new MessageLogic().IsGettingScore(message).Success.Should().Be(expectedValue);
         }
 
         [Theory]
@@ -128,7 +128,7 @@ namespace MSTeams.Karma.Tests.BusinessLogic
         [InlineData("<at>karma</at> msteams-- get users", false)]
         public void TestGetThing(string message, bool expectedValue)
         {
-            new MessageLogic().IsGettingScore(message).Should().Be(expectedValue);
+            new MessageLogic().IsGettingScore(message).Success.Should().Be(expectedValue);
         }
     }
 }

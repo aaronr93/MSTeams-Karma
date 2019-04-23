@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using MSTeams.Karma.Models;
 using MSTeams.Karma.Properties;
@@ -71,7 +72,7 @@ namespace MSTeams.Karma.BusinessLogic
         /// <param name="uniqueId">If the entity given karma was a Teams user, the unique ID for that user</param>
         /// <param name="givenName">If the entity given karma was a Teams user, the Given Name for that user</param>
         /// <returns>The bot's response including the karma amount difference.</returns>
-        public async Task<string> GetReplyMessageForKarma(string karmaString, string uniqueId = null, string givenName = null)
+        public async Task<string> GetReplyMessageForKarma(string karmaString, string uniqueId, string givenName, CancellationToken cancellationToken)
         {
             // We don't want commonly used karma strings to be interpreted as karma, like "C++"
             if (KarmaBlacklist.Contains(karmaString.Replace(" ", "")))
@@ -98,7 +99,7 @@ namespace MSTeams.Karma.BusinessLogic
             string id = uniqueId ?? uniqueEntity;
             string partition = GetPartitionForKey(uniqueId);
 
-            KarmaModel karmaItem = await _db.GetItemAsync(id, partition);
+            KarmaModel karmaItem = await _db.GetItemAsync(id, partition, cancellationToken);
 
             bool existsInDb = karmaItem != null;
             if (!existsInDb)
@@ -141,11 +142,11 @@ namespace MSTeams.Karma.BusinessLogic
 
             if (existsInDb)
             {
-                await _db.UpdateItemAsync(id, karmaItem, partition);
+                await _db.UpdateItemAsync(id, karmaItem, partition, cancellationToken);
             }
             else
             {
-                await _db.CreateItemAsync(karmaItem, partition);
+                await _db.CreateItemAsync(karmaItem, partition, cancellationToken);
             }
 
             return replyMessage;

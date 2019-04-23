@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using Activity = Microsoft.Bot.Connector.Activity;
 
@@ -17,7 +18,7 @@ namespace MSTeams.Karma.BusinessLogic
             _karmaLogic = karmaLogic;
         }
 
-        public async Task<IList<string>> GetKarmaResponseTextsAsync(Activity activity)
+        public async Task<IList<string>> GetKarmaResponseTextsAsync(Activity activity, CancellationToken cancellationToken)
         {
             List<string> responses = new List<string>();
 
@@ -72,7 +73,7 @@ namespace MSTeams.Karma.BusinessLogic
                 // Process the alleged Karma instruction and add the response message
                 if (KarmaLogic.IsKarmaString(karmaChange.KarmaString))
                 {
-                    var replyMessage = await _karmaLogic.GetReplyMessageForKarma(karmaChange.KarmaString, karmaChange.UniqueId, karmaChange.Name);
+                    var replyMessage = await _karmaLogic.GetReplyMessageForKarma(karmaChange.KarmaString, karmaChange.UniqueId, karmaChange.Name, cancellationToken);
                     if (string.IsNullOrEmpty(replyMessage))
                     {
                         return null;
