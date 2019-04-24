@@ -7,8 +7,8 @@
   "developer": {
     "name": "Aaron Rosenberger",
     "websiteUrl": "https://github.com/aaronr93/MSTeams-Karma",
-    "privacyUrl": "https://github.com/aaronr93/MSTeams-Karma",
-    "termsOfUseUrl": "https://github.com/aaronr93/MSTeams-Karma"
+    "privacyUrl": "https://github.com/aaronr93/MSTeams-Karma/blob/master/MSTeams-Karma/Public/Privacy.md",
+    "termsOfUseUrl": "https://github.com/aaronr93/MSTeams-Karma/blob/master/MSTeams-Karma/Public/Terms.md"
   },
   "icons": {
     "color": "color.png",
