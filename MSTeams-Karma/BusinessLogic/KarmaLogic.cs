@@ -51,9 +51,9 @@ namespace MSTeams.Karma.BusinessLogic
             return Regex.IsMatch(message ?? string.Empty, "[+-]{2,}");
         }
 
-        private static string GetPartitionForKey(string key)
+        private static string GetPartitionForKey(string karmaString)
         {
-            if (!string.IsNullOrEmpty(key))
+            if (!string.IsNullOrEmpty(karmaString) && karmaString.Contains("<at>"))
             {
                 // This was a Teams user. Separate into its own partition.
                 return "msteams_user";
@@ -97,7 +97,7 @@ namespace MSTeams.Karma.BusinessLogic
             }
 
             string id = uniqueId ?? uniqueEntity;
-            string partition = GetPartitionForKey(uniqueId);
+            string partition = GetPartitionForKey(karmaString);
 
             KarmaModel karmaItem = await _db.GetItemAsync(id, partition, cancellationToken);
 
