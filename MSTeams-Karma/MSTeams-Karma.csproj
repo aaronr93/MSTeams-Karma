@@ -312,6 +312,8 @@
     <Content Include="PerformWebRequest.ps1">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Public\Privacy.md" />
+    <Content Include="Public\Terms.md" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Strings.resx">
@@ -321,7 +323,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Manifest\" />
-    <Folder Include="Public\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
