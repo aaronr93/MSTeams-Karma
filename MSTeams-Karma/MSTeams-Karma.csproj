@@ -321,6 +321,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Manifest\" />
+    <Folder Include="Public\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

@@ -328,8 +328,8 @@ ASALocalRun/
 
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
-/MSTeams-Karma/Manifest/manifest.json
-/MSTeams-Karma/karma.txt
-/MSTeams-Karma/Manifest/karma.zip
-/MSTeams-Karma/logs/logfile.txt
+
+# Custom
+/MSTeams-Karma/Manifest/secrets.txt
+/MSTeams-Karma/Manifest/*.zip
 MSTeams-Karma\\Web.Local.config 
