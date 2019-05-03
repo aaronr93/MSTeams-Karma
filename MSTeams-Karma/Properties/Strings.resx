@@ -142,6 +142,6 @@
     <value>https://confluence.silverchair.com/display/~arosenberger/MSTeams+Karmabot</value>
   </data>
   <data name="SmallHelpMessage" xml:space="preserve">
-    <value>To change karma, mention me (@karma), then add between 2 and 6 pluses or minuses in front of someone or something.</value>
+    <value>To change karma, mention me (@karma), then add between 2 and 6 pluses or minuses after someone or something.</value>
   </data>
 </root>

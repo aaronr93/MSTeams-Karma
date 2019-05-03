@@ -133,7 +133,7 @@ namespace MSTeams.Karma.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to To change karma, mention me (@karma), then add between 2 and 6 pluses or minuses in front of someone or something..
+        ///   Looks up a localized string similar to To change karma, mention me (@karma), then add between 2 and 6 pluses or minuses after someone or something..
         /// </summary>
         internal static string SmallHelpMessage {
             get {
