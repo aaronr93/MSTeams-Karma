@@ -24,6 +24,9 @@ namespace MSTeams.Karma.BusinessLogic
 
             // Get Mentions
             var userMentions = Utilities.GetUserMentions(activity).ToList();
+            
+            // Strips stuff like '@' so '@msteams' and 'msteams' can have the same karma.
+            Utilities.StripCharactersWeDontCareAbout(activity);
 
             // Remove the space before the karma score
             activity.Text = Regex.Replace(activity.Text, "[ ]([+-]{2,})", "$1");

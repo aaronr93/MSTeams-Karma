@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Microsoft.Bot.Connector;
 
 namespace MSTeams.Karma
@@ -38,6 +39,11 @@ namespace MSTeams.Karma
                     }
                 }
             }
+        }
+
+        public static void StripCharactersWeDontCareAbout(Activity activity)
+        {
+            activity.Text = new Regex("(@)").Replace(activity.Text, "");
         }
 
         public static string TrimWhitespace(string text)
