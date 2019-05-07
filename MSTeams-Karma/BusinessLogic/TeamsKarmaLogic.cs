@@ -48,7 +48,7 @@ namespace MSTeams.Karma.BusinessLogic
             }
 
             // Get list of karma strings
-            var separatedBySpaces = activity.Text.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+            var separatedBySpaces = activity.Text.Split(new[] { ' ', '\n' }, StringSplitOptions.RemoveEmptyEntries).ToList();
 
             // Add all the user karma strings
             foreach (var mention in userMentions)
