@@ -11,6 +11,7 @@ namespace MSTeams.Karma.Tests.BusinessLogic
     public class MessageLogicTests
     {
         [Theory]
+        [InlineData("get top things", true)]
         [InlineData("<at>karma</at> get top things", true)]
         [InlineData("<at>karma</at> get top thing", true)]
         [InlineData("<at>karma</at> get top thinsg", true)]
@@ -34,6 +35,7 @@ namespace MSTeams.Karma.Tests.BusinessLogic
         }
 
         [Theory]
+        [InlineData("get bottom things", true)]
         [InlineData("<at>karma</at> get bottom things", true)]
         [InlineData("<at>karma</at> get bottom thing", true)]
         [InlineData("<at>karma</at> get bottom thinsg", true)]
@@ -57,6 +59,7 @@ namespace MSTeams.Karma.Tests.BusinessLogic
         }
 
         [Theory]
+        [InlineData("get top users", true)]
         [InlineData("<at>karma</at> get top users", true)]
         [InlineData("<at>karma</at> get top user", true)]
         [InlineData("<at>karma</at> get top usrs", true)]
@@ -78,6 +81,7 @@ namespace MSTeams.Karma.Tests.BusinessLogic
         }
 
         [Theory]
+        [InlineData("get bottom users", true)]
         [InlineData("<at>karma</at> get bottom users", true)]
         [InlineData("<at>karma</at> get bottom user", true)]
         [InlineData("<at>karma</at> get bottom usrs", true)]
@@ -99,6 +103,7 @@ namespace MSTeams.Karma.Tests.BusinessLogic
         }
 
         [Theory]
+        [InlineData("get  <at>Aaron Rosenberger</at>", true)]
         [InlineData("<at>karma</at> get  <at>Aaron Rosenberger</at>", true)]
         [InlineData("<at>karma</at> get <at>Aaron Rosenberger</at>", true)]
         [InlineData("<at>karma</at>  get  <at>Aaron Rosenberger</at>\n", true)]
@@ -117,6 +122,7 @@ namespace MSTeams.Karma.Tests.BusinessLogic
         }
 
         [Theory]
+        [InlineData("get \"some entity\"", true)]
         [InlineData("<at>karma</at> get \"some entity\"", true)]
         [InlineData("<at>karma</at> get  \"some entity\"", true)]
         [InlineData("<at>karma</at> get msteams", true)]
