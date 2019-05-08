@@ -1,6 +1,4 @@
 # MSTeams-Karma
-
-## About
 A karma bot for Microsoft Teams inspired by the late [HipChat's karma bot.](https://bitbucket.org/atlassianlabs/ac-koa-hipchat-karma/src/master/) [![Build status](https://dev.azure.com/arosenberger/MSTeams-Karma/_apis/build/status/arosenberger-MSTeams-Karma%20-%20CI)](https://dev.azure.com/arosenberger/MSTeams-Karma/_build/latest?definitionId=1)
 
 [Contributing](MSTeams-Karma/Public/CONTRIBUTING.md) | [Privacy Policy](MSTeams-Karma/Public/Privacy.md) | [Terms](MSTeams-Karma/Public/Terms.md)
