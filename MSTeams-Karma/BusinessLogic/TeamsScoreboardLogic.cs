@@ -35,7 +35,7 @@ namespace MSTeams.Karma.BusinessLogic
 
             foreach (KarmaModel karma in response.Feed)
             {
-                sb.AppendFormat("{0}={1}, ", karma.Entity, karma.Score);
+                sb.AppendFormat("{0}={1},\n\n ", karma.Entity, karma.Score);
             }
 
             return sb.ToString().TrimEnd(',', ' ');
